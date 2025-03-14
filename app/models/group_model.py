@@ -33,8 +33,9 @@ class GroupModel:
 
     @staticmethod
     def add_user(group_id: str, user_id: str):
-        group = GroupModel.get_group(group_id)
         try:
+            # check if the group and user exists
+            group = GroupModel.get_group(group_id)
             if len(group["users"]) >= GroupModel.MAX_USERS_IN_GROUP:
                 raise ValueError(
                     f"A group can contain a maximum of {GroupModel.MAX_USERS_IN_GROUP} users."
@@ -42,9 +43,11 @@ class GroupModel:
             # check if the user is already in the group
             if user_id in group["users"]:
                 raise ValueError("User already in group")
+            # TODO: check if the user is already in another group
             get_db().groups.update_one(
                 {"_id": ObjectId(group_id)}, {"$push": {"users": user_id}}
             )
+            get_db().users.update_one({"_id": ObjectId(user_id)}, {"group": group_id})
         except ValueError as ve:
             print(f"Error adding user to group: {ve}")
         except Exception as e:
