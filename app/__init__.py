@@ -4,11 +4,13 @@ from flask_pymongo import PyMongo
 from app.routes.api import api_bp
 from app.routes.auth import auth_bp
 
+from app.config import Config
+
 mongo = PyMongo()
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object('app.config')
+    app.config.from_object(Config)
 
     mongo.init_app(app)
     

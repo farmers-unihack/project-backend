@@ -1,3 +1,7 @@
 import os
+from dotenv import load_dotenv
 
-MONGODB_URI = os.environ.get('MONGO_URI', 'mongodb://localhost:27017/unihack')
+load_dotenv()
+
+class Config:
+    MONGODB_URI = os.environ.get('MONGO_URI', 'mongodb://localhost:27017/unihack')
