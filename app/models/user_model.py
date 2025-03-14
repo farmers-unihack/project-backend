@@ -1,5 +1,6 @@
 from typing import Any, Optional
 from flask_login import UserMixin
+from bson import ObjectId
 
 from app.extensions import get_db, bcrypt
 
@@ -14,7 +15,7 @@ class User(UserMixin):
 
     @staticmethod
     def find_by_id(user_id):
-        user_data = get_db().users.find_one({ "_id": user_id })
+        user_data = get_db().users.find_one({ "_id": ObjectId(user_id) })
         return User(user_data) if user_data else None
 
     @staticmethod
