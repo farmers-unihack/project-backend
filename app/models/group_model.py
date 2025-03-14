@@ -1,9 +1,8 @@
 from datetime import timedelta
 from bson.objectid import ObjectId
-from app import get_db
-from app.models.user_model import UserModel
+from app.extensions import get_db
+from app.models.user_model import User
 from app.utils.time import get_current_time
-
 
 class GroupModel:
     MAX_USERS_IN_GROUP = 6
@@ -84,7 +83,7 @@ class GroupModel:
             return None
 
         # Get all the users in the group and their completed tasks
-        user_model = UserModel()
+        user_model = User()
         users = filter(
             lambda user: user is not None,
             map(lambda user_id: user_model.get_user(user_id), group["users"]),
