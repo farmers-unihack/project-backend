@@ -3,6 +3,7 @@ from flask_pymongo import PyMongo
 
 from app.routes.api import api_bp
 from app.routes.auth import auth_bp
+from app.routes.group import group_bp
 
 from app.config import Config
 
@@ -16,6 +17,7 @@ def create_app():
     
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(group_bp, url_prefix='/group')
 
     return app
 
