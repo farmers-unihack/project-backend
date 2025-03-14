@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_pymongo import PyMongo
+from flask_bcrypt import Bcrypt
 
 from app.routes.api import api_bp
 from app.routes.auth import auth_bp
@@ -12,6 +13,7 @@ from app.config import Config
 
 >>>>>>> 686dd07 (Added config class and dotenv)
 mongo = PyMongo()
+bcrypt = Bcrypt()
 
 def create_app():
     app = Flask(__name__)
@@ -19,7 +21,8 @@ def create_app():
 
     bcrypt.init_app(app)
     mongo.init_app(app)
-    
+    bcrypt.init_app(app)
+
     app.register_blueprint(api_bp, url_prefix='/api')
     app.register_blueprint(auth_bp, url_prefix='/auth')
 
