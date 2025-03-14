@@ -10,4 +10,3 @@ class Config:
     SESSION_TYPE = os.environ.get('SESSION_TYPE', 'filesystem')
     SESSION_PERMANENT = os.environ.get('SESSION_PERMANENT', False)
     SESSION_USE_SIGNER = os.environ.get('SESSION_USE_SIGNER', True)
-
