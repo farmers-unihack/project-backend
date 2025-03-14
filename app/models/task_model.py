@@ -57,3 +57,13 @@ class TaskModel:
             get_db().delete_one({"_id": ObjectId(task_id)})
         except Exception as e:
             print(f"Error deleting task: {e}")
+
+    @staticmethod
+    def is_task_completed_within_recent_time(task_id: str, time_limit: timedelta):
+        task = TaskModel.get_task(task_id)
+        return (
+            task["completed"]
+            and get_current_time() - task["completion_time"] < time_limit
+            if task
+            else None
+        )
