@@ -10,7 +10,7 @@ def create():
     try:
         group_name = request.json["group_name"]
         GroupModel.create_group(group_name)
-        return jsonify({"msg": "Group created successfully"}), 200
+        return jsonify({"msg": "Group created successfully"}), 201
     except ValueError as ve:
         abort(400, str(ve))
     except Exception as e:
