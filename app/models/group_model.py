@@ -91,7 +91,7 @@ class GroupModel:
         for user in users:
             tasks.extend(
                 filter(
-                    map(lambda user: user["tasks"], users),
+                    map(lambda user: user["tasks"], user),
                     lambda task: task["completed"]
                     and get_current_time() - task["completion_date"] > time_limit,
                 )
