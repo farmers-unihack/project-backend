@@ -1,33 +1,31 @@
 from bson.objectid import ObjectId
-from pymongo.collection import Collection
-
-from app import get_db
 from app.utils.time import get_current_time
+from app import get_db
 
 
 class TaskModel:
-    def __init__(self):
-        self.collection: Collection = get_db().tasks
-
-    def create_task(self, name: str, description: str = ""):
+    @staticmethod
+    def create_task(name: str, description: str = ""):
         task = {
             "name": name,
             "description": description,
             "completion_date": None,
             "completed": False,
         }
-        result = self.collection.insert_one(task)
+        result = get_db().insert_one(task)
         return result.inserted_id
 
-    def get_task(self, task_id: str):
+    @staticmethod
+    def get_task(task_id: str):
         try:
-            return self.collection.find_one({"_id": ObjectId(task_id)})
+            return get_db().find_one({"_id": ObjectId(task_id)})
         except Exception as e:
             print(f"Error getting task: {e}")
             return None
 
+    @staticmethod
     def update_task(
-        self,
+        TaskModel,
         task_id: str,
         name: str = None,
         description: str = None,
@@ -43,7 +41,7 @@ class TaskModel:
             update_fields["completion_date"] = get_current_time() if completed else None
         if update_fields:
             try:
-                updated = self.collection.update_one(
+                updated = get_db().update_one(
                     {"_id": ObjectId(task_id)}, {"$set": update_fields}
                 )
                 if updated.modified_count == 0:
@@ -53,8 +51,9 @@ class TaskModel:
             except Exception as e:
                 print(f"Unexpected error updating task: {e}")
 
-    def delete_task(self, task_id: str):
+    @staticmethod
+    def delete_task(task_id: str):
         try:
-            self.collection.delete_one({"_id": ObjectId(task_id)})
+            get_db().delete_one({"_id": ObjectId(task_id)})
         except Exception as e:
             print(f"Error deleting task: {e}")
