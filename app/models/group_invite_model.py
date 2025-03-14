@@ -1,7 +1,7 @@
 from bson.objectid import ObjectId
 from app.models.group_model import GroupModel
-from app.models.user_model import UserModel
-from app import get_db
+from app.models.user_model import User
+from app.extensions import get_db
 
 
 class GroupInviteModel:
@@ -10,8 +10,11 @@ class GroupInviteModel:
     @staticmethod
     def create_group_invite(group_id: str, user_id: str):
         # check if a user exists and group exists
-        group = GroupModel().get_group(group_id)
-        user = UserModel().get_user(user_id)
+        group = GroupModel.get_group(group_id)
+        user = User.find_by_id(user_id)
+
+        if group == None:
+            raise ValueError("Specfied group id was not found")
 
         if user_id in group["users"]:
             raise ValueError("User is already in the group")

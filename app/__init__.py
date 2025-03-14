@@ -3,11 +3,7 @@ from flask import Flask
 from flask_session import Session
 
 def create_app() -> Any:
-
     app = Flask(__name__)
-    app.config.from_object(Config)
-
-    mongo.init_app(app)
 
     from app.config import Config
     app.config.from_object(Config)
