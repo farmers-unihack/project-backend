@@ -6,6 +6,8 @@ from app.models.user_model import User
 from app.utils.time import get_current_time
 
 class Group:
+    MAX_USERS_IN_GROUP = 6
+
     def __init__(self, data: Any) -> None:
         self.id = data["_id"]
         self.name = data["name"]
