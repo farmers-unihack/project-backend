@@ -3,9 +3,10 @@ from flask import Blueprint, jsonify
 from app.models.user_model import User
 from app.services.user_service import UserService
 from app.services.auth_service import AuthService
+from app.services.group_service import GroupService
 from app.utils.time import get_current_time
 
-def create_user_bp(user_service: UserService, auth_service: AuthService) -> Blueprint:
+def create_user_bp(user_service: UserService, auth_service: AuthService, group_service: GroupService) -> Blueprint:
     user_bp = Blueprint("user", __name__)
 
     @user_bp.route("/clockin", methods=["POST"])
@@ -32,5 +33,23 @@ def create_user_bp(user_service: UserService, auth_service: AuthService) -> Blue
         except:
             traceback.print_exc()
             return jsonify({ "msg": "Internal Server Error" }), 500
+
+
+    @user_bp.route("/me", methods=['GET'])
+    @auth_service.protect_with_jwt
+    def me(logged_in_user: User):
+        data = {
+                "username": logged_in_user.username,
+                "in_group": False, 
+        }
+
+        try:
+            group = group_service.find_group_by_user_id(logged_in_user.id)
+            data["group_name"] = group.name
+            data["in_group"] = True
+        except:
+            pass
+
+        return jsonify(data), 200
 
     return user_bp 
