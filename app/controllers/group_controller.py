@@ -1,5 +1,6 @@
 from flask import Blueprint, abort, jsonify, request
 from app.services.group_service import GroupService
+from app.utils.request_checker import request_json_contains
 
 
 def create_group_bp(group_service: GroupService) -> Blueprint:
@@ -8,8 +9,8 @@ def create_group_bp(group_service: GroupService) -> Blueprint:
     @group_bp.route("create", methods=["POST"])
     def create():
         try:
-            if request.json == None:
-                abort(400, "no body provided")
+            if not request_json_contains(("group_name", "user_id")):
+                abort(400, "Invalid request")
             group_name = request.json["group_name"]
             user_id = request.json["user_id"]
             group_service.create_group(group_name, user_id)
@@ -23,8 +24,8 @@ def create_group_bp(group_service: GroupService) -> Blueprint:
     @group_bp.route("join", methods=["POST"])
     def join():
         try:
-            if request.json == None:
-                abort(400, "no body provided")
+            if not request_json_contains(("group_id", "user_id")):
+                abort(400, "Invalid request")
             user_id = request.json["user_id"]
             group_id = request.json["group_id"]
             group_service.add_user_to_group(user_id, group_id)
@@ -37,8 +38,8 @@ def create_group_bp(group_service: GroupService) -> Blueprint:
     @group_bp.route("users", methods=["GET"])
     def users():
         try:
-            if request.json == None:
-                abort(400, "no body provided")
+            if not request_json_contains(("group_id")):
+                abort(400, "Invalid request")
             group_id = request.args.get("group_id")
             group = group_service.find_group_by_id(group_id)
             return jsonify(group.users), 200
@@ -50,8 +51,8 @@ def create_group_bp(group_service: GroupService) -> Blueprint:
     @group_bp.route("leave", methods=["POST"])
     def leave_group():
         try:
-            if request.json == None:
-                abort(400, "no body provided")
+            if not request_json_contains(("group_id", "user_id")):
+                abort(400, "Invalid request")
             user_id = request.json["user_id"]
             group_id = request.json["group_id"]
             group_service.remove_user_from_group(user_id, group_id)
@@ -73,6 +74,5 @@ def create_group_bp(group_service: GroupService) -> Blueprint:
         #     abort(400, str(ve))
         # except Exception as e:
         #     abort(500, "Internal Server Error")
-
 
     return group_bp
