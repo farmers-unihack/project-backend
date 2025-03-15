@@ -33,11 +33,16 @@ class TaskService:
 
     def update_task(
         self,
+        current_user_id: str,
         task_id: str,
         name: Optional[str] = None,
         description: Optional[str] = None,
         completed: Optional[bool] = None,
     ) -> None:
+        task = self.find_task_by_id(task_id)
+        if task.user_id != current_user_id:
+            raise ValueError("User does not have permission to update task")
+
         update_fields = {}
         if name:
             update_fields["name"] = name
@@ -56,7 +61,10 @@ class TaskService:
         if update_result.modified_count == 0:
             raise ValueError("Task could not be updated")
 
-    def delete_task(self, task_id: str) -> None:
+    def delete_task(self, current_user_id: str, task_id: str) -> None:
+        task = self.find_task_by_id(task_id)
+        if task.user_id != current_user_id:
+            raise ValueError("User does not have permission to delete task")
         delete_result = self.task_repository.delete_task_by_id(task_id)
         if delete_result.deleted_count == 0:
             raise ValueError("Task could not be deleted")
