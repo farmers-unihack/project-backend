@@ -37,7 +37,8 @@ def create_user_bp(
             )
             if (
                 total_hours
-                >= len(group.collectibles) * Collectible.PER_COLLECTIBLE_TIME_INCREMENT
+                >= (len(group.collectibles) + 1)
+                * Collectible.PER_COLLECTIBLE_TIME_INCREMENT
             ):
                 group_service.add_random_collectible_to_group(group.id)
             return jsonify({"msg": "clocked out"}), 200
