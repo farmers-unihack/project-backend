@@ -12,7 +12,7 @@ class User:
         )
 
     def is_clocked_in(self) -> bool:
-        return not (self.clock_in_timestamp == None)
+        return self.clock_in_timestamp is not None
 
     def get_total_session_time(self) -> int:
         return sum(

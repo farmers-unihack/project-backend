@@ -1,7 +1,8 @@
+from typing import Iterable
 from flask import Blueprint, abort, jsonify
 from app.models.user_model import User
 from app.services.auth_service import AuthService
-from datetime import timedelta
+from datetime import datetime, timedelta
 from app.models.task_model import Task
 from app.services.group_service import GroupService
 from app.utils.request_checker import safe_json
@@ -39,18 +40,6 @@ def create_group_bp(
             traceback.print_exc()
             abort(500, "Internal Server Error")
 
-    @group_bp.route("users", methods=["GET"])
-    @auth_service.protect_with_jwt
-    def users(logged_in_user: User):
-        try:
-            group = group_service.find_group_by_user_id(logged_in_user.id)
-            return jsonify(group.user_details), 200
-        except ValueError as ve:
-            abort(400, str(ve))
-        except Exception:
-            traceback.print_exc()
-            abort(500, "Internal Server Error")
-
     @group_bp.route("leave", methods=["POST"])
     @auth_service.protect_with_jwt
     def leave_group(logged_in_user: User):
@@ -68,12 +57,39 @@ def create_group_bp(
     def recent_completed_tasks(logged_in_user: User):
         try:
             time_limit = timedelta(**safe_json("time_limit"))
-            group_tasks: list[Task] = group_service.get_group_tasks(logged_in_user.id)
+            group_tasks: Iterable[Task] = group_service.get_group_tasks(logged_in_user.id)
             filtered_tasks = filter(
                 lambda task: task.is_completed_within_recent_time(time_limit),
                 group_tasks,
             )
             return jsonify(map(lambda task: task.to_dict(), filtered_tasks)), 200
+        except ValueError as ve:
+            abort(400, str(ve))
+        except Exception:
+            traceback.print_exc()
+            abort(500, "Internal Server Error")
+
+    @group_bp.route("poll", methods=["GET"])
+    @auth_service.protect_with_jwt
+    def poll(logged_in_user: User):
+        try:
+            group = group_service.find_group_by_user_id(logged_in_user.id)
+            clocked_in_users: list[str] = []
+            total_time = timedelta() 
+
+            for user_data in group.user_details:
+                user = User(user_data)
+
+                if user.is_clocked_in():
+                    clocked_in_users.append(user.username)
+
+                for session in user.sessions:
+                    from_time: datetime = session['from_time']
+                    to_time: datetime = session['to_time']
+                    diff: timedelta = to_time - from_time
+                    total_time += diff
+
+            return jsonify({ "active_users": clocked_in_users, "total_time_seconds": total_time.total_seconds() })
         except ValueError as ve:
             abort(400, str(ve))
         except Exception:
