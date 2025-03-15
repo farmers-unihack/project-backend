@@ -108,6 +108,10 @@ class GroupService:
         group = self.find_group_by_user_id(current_user_id)
         if not group:
             raise ValueError("Group does not exist")
+        if len(group.collectibles) == len(ALL_COLLECTIBLES):
+            # FIXME this should be a log
+            print("No more collectibles to add")
+            return
         # find one that is not owned by the group
         collectible_name = random.choice(
             [
@@ -116,10 +120,6 @@ class GroupService:
                 if key not in set(group.collectibles)
             ]
         )
-        if len(group.collectibles) == len(ALL_COLLECTIBLES):
-            # FIXME this should be a log
-            print("No more collectibles to add")
-            return
         update_result = self.group_repository.add_collectible_to_group(
             group.id, collectible_name
         )
