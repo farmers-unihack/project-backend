@@ -12,7 +12,7 @@ class UserService:
             raise ValueError(f"Not user found with the id {user_id}")
         return user
 
-    def find_by_usernae(self, username: str) -> User:
+    def find_by_username(self, username: str) -> User:
         user = self.user_repository.find_by_username(username)
         if not user:
             raise ValueError(f"Not user found with the username {username}")

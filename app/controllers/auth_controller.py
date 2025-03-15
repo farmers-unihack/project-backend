@@ -1,7 +1,9 @@
 from flask import Blueprint, jsonify, request
-from flask_login import login_user, logout_user, login_required, current_user
 
+from app.exceptions.auth_exception import AuthException
 from app.services.auth_service import AuthService
+
+import traceback
 
 def create_auth_bp(auth_service: AuthService) -> Blueprint:
     auth_bp = Blueprint('auth', __name__)
@@ -11,35 +13,32 @@ def create_auth_bp(auth_service: AuthService) -> Blueprint:
         username = request.form["username"]
         password = request.form["password"]
 
-        user = auth_service.login(username, password)
-
-        if user == None:
-            return jsonify( {"msg": "Invalid username or password"} ), 401
-
-        login_user(user)
-        return jsonify({"msg": "logged in"}), 201 
+        try: 
+            login = auth_service.login(username, password)
+            user, token = login
+            return jsonify({"username": user.username, "token": token}), 201 
+        except AuthException:
+            return jsonify({ "msg": "Invalid credentails" }), 401 
+        except Exception:
+            traceback.print_exc()
+            return jsonify({ "msg": "Internal server error" }), 500 
 
     @auth_bp.route('register', methods=['POST'])
     def register():
         username = request.form["username"]
         password = request.form["password"]
 
-        user = auth_service.register(username, password)
-
-        if user == None:
-            return jsonify({ "msg": "There is already an account registered with that username." }), 400
-
-        return jsonify({ "msg": "Successfully registered the account" }), 200
-
-    @auth_bp.route("/logout", methods=['POST'])
-    @login_required
-    def logout():
-        logout_user()
-        return jsonify({ "msg": "Successfully logged out" }), 200
+        try:
+            auth_service.register(username, password)
+            return jsonify({ "msg": "Successfully registered the account" }), 200
+        except AuthException:
+            return jsonify({ "msg": "user with that username already exists" }), 401 
+        except Exception:
+            traceback.print_exc()
+            return jsonify({ "msg": "Internal server error" }), 500 
 
     @auth_bp.route("/me", methods=['GET'])
-    @login_required
-    def me():
+    @auth_service.protect_with_jwt
+    def me(current_user):
         return jsonify(logged_in_as=current_user.username), 200
-
     return auth_bp

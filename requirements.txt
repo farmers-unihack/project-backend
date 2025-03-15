@@ -1,8 +1,7 @@
 Flask
 Flask-PyMongo
 Werkzeug
-Flask-Login
 pymongo
 python-dotenv
 flask-bcrypt
-flask-session
+PyJWT
