@@ -30,6 +30,9 @@ class TaskService:
             raise ValueError("Task does not exist")
         return task
 
+    def find_task_by_user_id(self, user_id: str) -> list[Task]:
+        return self.task_repository.find_tasks_by_user_id(user_id)
+
     def update_task(
         self,
         current_user_id: str,

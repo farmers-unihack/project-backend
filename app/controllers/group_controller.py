@@ -70,7 +70,7 @@ def create_group_bp(group_service: GroupService) -> Blueprint:
                 lambda task: task.is_completed_within_recent_time(time_limit),
                 group_tasks,
             )
-            return jsonify(map(lambda task: task.__dict__, filtered_tasks)), 200
+            return jsonify(map(lambda task: task.to_dict(), filtered_tasks)), 200
         except ValueError as ve:
             abort(400, str(ve))
         except Exception:

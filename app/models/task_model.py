@@ -18,3 +18,13 @@ class Task:
             and get_current_time() - self.completion_date.replace(tzinfo=datetime.UTC)
             < time_limit
         )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "completion_date": self.completion_date,
+            "completed": self.completed,
+            "user_id": self.user_id,
+        }

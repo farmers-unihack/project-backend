@@ -23,6 +23,18 @@ def create_task_bp(task_service: TaskService, auth_service: AuthService) -> Blue
             traceback.print_exc()
             abort(500, "Internal Server Error")
 
+    @task_bp.route("/", methods=["GET"])
+    @auth_service.protect_with_jwt
+    def get_tasks(current_user: User):
+        try:
+            tasks = task_service.find_task_by_user_id(current_user.id)
+            return jsonify(map(lambda task: task.to_dict(), tasks)), 200
+        except ValueError as ve:
+            abort(400, str(ve))
+        except Exception:
+            traceback.print_exc()
+            abort(500, "Internal Server Error")
+
     @task_bp.route("/update", methods=["PUT"])
     @auth_service.protect_with_jwt
     def update_task(current_user: User):
