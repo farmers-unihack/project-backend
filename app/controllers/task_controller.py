@@ -6,7 +6,7 @@ from app.utils.request_checker import safe_json, safe_json_or_default
 def create_task_bp(task_service: TaskService) -> Blueprint:
     task_bp = Blueprint("task", __name__)
 
-    @tasks_bp.route("/create", methods=["POST"])
+    @task_bp.route("/create", methods=["POST"])
     def create_task():
         try:
             task_name = safe_json("task_name")
@@ -18,7 +18,7 @@ def create_task_bp(task_service: TaskService) -> Blueprint:
         except Exception:
             abort(500, "Internal Server Error")
 
-    @tasks_bp.route("/update", methods=["PUT"])
+    @task_bp.route("/update", methods=["PUT"])
     def update_task():
         try:
             task_id = safe_json("task_id")
@@ -34,7 +34,7 @@ def create_task_bp(task_service: TaskService) -> Blueprint:
         except Exception:
             abort(500, "Internal Server Error")
 
-    @tasks_bp.route("/delete", methods=["DELETE"])
+    @task_bp.route("/delete", methods=["DELETE"])
     def delete_task():
         try:
             task_id = safe_json("task_id")
