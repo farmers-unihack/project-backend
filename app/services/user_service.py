@@ -42,7 +42,7 @@ class UserService:
         if not user.is_clocked_in():
             raise ValueError("User is not clocked in")
 
-        from_time = user.clock_in_timestamp - timedelta(hours=5)
+        from_time = user.clock_in_timestamp
         to_time = get_current_time()
 
         update = {
