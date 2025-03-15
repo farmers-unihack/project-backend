@@ -9,8 +9,11 @@ class TaskRepository:
     def __init__(self, db: Database) -> None:
         self.db = db
 
-    def create_task(self, name: str, description: str = "") -> Optional[Task]:
+    def create_task(
+        self, user_id: str, name: str, description: str = ""
+    ) -> Optional[Task]:
         task_data = {
+            "user_id": ObjectId(user_id),
             "name": name,
             "description": description,
             "completion_date": None,
@@ -21,6 +24,10 @@ class TaskRepository:
             return None
         task_data["_id"] = result.inserted_id
         return Task(task_data)
+
+    def find_tasks_by_user_id(self, user_id: str) -> list[Task]:
+        task_data = self.db.tasks.find({"user_id": ObjectId(user_id)})
+        return [Task(task) for task in task_data]
 
     def find_task_by_id(self, task_id: str) -> Optional[Task]:
         task_data = self.db.tasks.find_one({"_id": ObjectId(task_id)})

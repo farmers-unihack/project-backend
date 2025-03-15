@@ -6,6 +6,6 @@ def create_user_bp(user_service: UserService) -> Blueprint:
 
     @user_bp.route("/clockin", methods=["POST"])
     def clock_in():
-
+        pass
 
     return user_bp 

@@ -15,5 +15,3 @@ def safe_json_or_default(field_name: str, default: str | None) -> Any:
         return safe_json(field_name)
     except ValueError:
         return default
-
-

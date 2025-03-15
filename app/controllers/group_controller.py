@@ -1,6 +1,8 @@
+from datetime import timedelta
 from flask import Blueprint, abort, jsonify, request
+from app.models.task_model import Task
 from app.services.group_service import GroupService
-from app.utils.request_checker import safe_json 
+from app.utils.request_checker import safe_json
 import traceback
 
 
@@ -58,17 +60,21 @@ def create_group_bp(group_service: GroupService) -> Blueprint:
             traceback.print_exc()
             abort(500, "Internal Server Error")
 
-    @group_bp.route("completed_tasks", methods=["GET"])
-    def completed_tasks():
-        abort(500, "Not Implemented")
-        # try:
-        #     group_id = request.args.get("group_id")
-        #     time_limit = request.args.get("time_limit")
-        #     tasks = group_service.get_completed_tasks(group_id, time_limit)
-        #     return jsonify(tasks), 200
-        # except ValueError as ve:
-        #     abort(400, str(ve))
-        # except Exception as e:
-        #     abort(500, "Internal Server Error")
+    @group_bp.route("recent_completed_tasks", methods=["GET"])
+    def recent_completed_tasks():
+        try:
+            group_id = safe_json("group_id")
+            time_limit = timedelta(**safe_json("time_limit"))
+            group_tasks: list[Task] = group_service.get_group_tasks(group_id)
+            filtered_tasks = filter(
+                lambda task: task.is_completed_within_recent_time(time_limit),
+                group_tasks,
+            )
+            return jsonify(map(lambda task: task.to_dict(), filtered_tasks)), 200
+        except ValueError as ve:
+            abort(400, str(ve))
+        except Exception:
+            traceback.print_exc()
+            abort(500, "Internal Server Error")
 
     return group_bp
