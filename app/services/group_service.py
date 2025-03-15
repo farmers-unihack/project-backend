@@ -47,7 +47,7 @@ class GroupService:
     def find_group_by_user_id(self, user_id: str) -> Group:
         group = self.group_repository.find_group_by_user_id(user_id)
         if group is None:
-            raise ValueError("Group does not exist")
+            raise ValueError(f"Group with user {user_id} does not exist")
         return group
 
     def add_user_to_group(self, group_id: str, user_id: str) -> Group:
