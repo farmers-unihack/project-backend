@@ -78,16 +78,4 @@ def create_group_bp(group_service: GroupService, auth_service: AuthService) -> B
             traceback.print_exc()
             abort(500, "Internal Server Error")
 
-    @group_bp.route("add-collectible", methods=["GET"])
-    def add_collectible():
-        try:
-            group_id = safe_json("group_id")
-            group_service.add_random_collectible_to_group(group_id)
-            return {"msg": "Collectible added successfully"}, 200
-        except ValueError as ve:
-            abort(400, str(ve))
-        except Exception:
-            traceback.print_exc()
-            abort(500, "Internal Server Error")
-
     return group_bp
