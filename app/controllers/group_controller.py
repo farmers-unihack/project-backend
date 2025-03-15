@@ -61,7 +61,7 @@ def create_group_bp(group_service: GroupService, auth_service: AuthService) -> B
             traceback.print_exc()
             abort(500, "Internal Server Error")
 
-    @group_bp.route("recent_completed_tasks", methods=["GET"])
+    @group_bp.route("recent-completed-tasks", methods=["GET"])
     @auth_service.protect_with_jwt
     def recent_completed_tasks(logged_in_user: User):
         try:
@@ -78,7 +78,7 @@ def create_group_bp(group_service: GroupService, auth_service: AuthService) -> B
             traceback.print_exc()
             abort(500, "Internal Server Error")
 
-    @group_bp.route("tasks", methods=["GET"])
+    @group_bp.route("add-collectible", methods=["GET"])
     def add_collectible():
         try:
             group_id = safe_json("group_id")
