@@ -3,6 +3,7 @@ from app.models.user_model import User
 from app.services.auth_service import AuthService
 from app.services.task_service import TaskService
 from app.utils.request_checker import safe_json, safe_json_or_default
+import traceback
 
 
 def create_task_bp(task_service: TaskService, auth_service: AuthService) -> Blueprint:
@@ -19,6 +20,7 @@ def create_task_bp(task_service: TaskService, auth_service: AuthService) -> Blue
         except ValueError as ve:
             abort(400, str(ve))
         except Exception:
+            traceback.print_exc()
             abort(500, "Internal Server Error")
 
     @task_bp.route("/update", methods=["PUT"])
@@ -36,6 +38,7 @@ def create_task_bp(task_service: TaskService, auth_service: AuthService) -> Blue
         except ValueError as ve:
             abort(400, str(ve))
         except Exception:
+            traceback.print_exc()
             abort(500, "Internal Server Error")
 
     @task_bp.route("/delete", methods=["DELETE"])
@@ -48,6 +51,7 @@ def create_task_bp(task_service: TaskService, auth_service: AuthService) -> Blue
         except ValueError as ve:
             abort(400, str(ve))
         except Exception:
+            traceback.print_exc()
             abort(500, "Internal Server Error")
 
     return task_bp

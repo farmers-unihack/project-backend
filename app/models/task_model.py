@@ -1,4 +1,5 @@
 from datetime import timedelta
+import datetime
 from app.utils.time import get_current_time
 
 
@@ -12,4 +13,8 @@ class Task:
         self.user_id = data["user_id"]
 
     def is_completed_within_recent_time(self, time_limit: timedelta):
-        return self.completed and get_current_time() - self.completion_date < time_limit
+        return (
+            self.completed
+            and get_current_time() - self.completion_date.replace(tzinfo=datetime.UTC)
+            < time_limit
+        )

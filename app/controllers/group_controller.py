@@ -1,3 +1,4 @@
+from datetime import timedelta
 from flask import Blueprint, abort, jsonify, request
 from app.models.task_model import Task
 from app.services.group_service import GroupService
@@ -63,13 +64,13 @@ def create_group_bp(group_service: GroupService) -> Blueprint:
     def recent_completed_tasks():
         try:
             group_id = safe_json("group_id")
-            time_limit = safe_json("time_limit")
+            time_limit = timedelta(**safe_json("time_limit"))
             group_tasks: list[Task] = group_service.get_group_tasks(group_id)
             filtered_tasks = filter(
                 lambda task: task.is_completed_within_recent_time(time_limit),
                 group_tasks,
             )
-            return jsonify(filtered_tasks), 200
+            return jsonify(map(lambda task: task.__dict__, filtered_tasks)), 200
         except ValueError as ve:
             abort(400, str(ve))
         except Exception:

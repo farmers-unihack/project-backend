@@ -13,6 +13,7 @@ from app.services.group_service import GroupService
 from app.services.task_service import TaskService
 from app.services.user_service import UserService
 
+
 def register_controllers(app: Flask, db: Database, bcrypt: Bcrypt):
     # Repositories
     user_repository = UserRepository(db)
@@ -23,11 +24,11 @@ def register_controllers(app: Flask, db: Database, bcrypt: Bcrypt):
     group_service = GroupService(group_repository, user_repository, task_repository)
     auth_service = AuthService(app, user_repository, bcrypt)
     task_service = TaskService(task_repository, user_repository)
-    
+
     # Controllers
     auth_bp = create_auth_bp(auth_service)
     group_bp = create_group_bp(group_service)
-    task_bp = create_task_bp(task_service)
+    task_bp = create_task_bp(task_service, auth_service)
 
     # Register blueprints
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
