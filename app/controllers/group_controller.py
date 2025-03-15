@@ -8,7 +8,9 @@ from app.utils.request_checker import safe_json
 import traceback
 
 
-def create_group_bp(group_service: GroupService, auth_service: AuthService) -> Blueprint:
+def create_group_bp(
+    group_service: GroupService, auth_service: AuthService
+) -> Blueprint:
     group_bp = Blueprint("group", __name__)
 
     @group_bp.route("create", methods=["POST"])
@@ -43,6 +45,26 @@ def create_group_bp(group_service: GroupService, auth_service: AuthService) -> B
         try:
             group = group_service.find_group_by_user_id(logged_in_user.id)
             return jsonify(group.user_details), 200
+        except ValueError as ve:
+            abort(400, str(ve))
+        except Exception:
+            traceback.print_exc()
+            abort(500, "Internal Server Error")
+
+    @group_bp.route("poll", methods=["GET"])
+    @auth_service.protect_with_jwt
+    def poll(logged_in_user: User):
+        try:
+            group = group_service.find_group_by_user_id(logged_in_user.id)
+            return (
+                jsonify(
+                    {
+                        "collectibles": group.collectibles,
+                        "users": group.user_details,
+                    }
+                ),
+                200,
+            )
         except ValueError as ve:
             abort(400, str(ve))
         except Exception:
