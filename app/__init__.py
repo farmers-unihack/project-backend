@@ -11,11 +11,7 @@ def create_app() -> Any:
     app = Flask(__name__)
 
     from flask_cors import CORS 
-    CORS(app, origins=[
-        "chrome-extension://hjcdnlbjgfampkepcnhfenadpggbnhga",
-        "http://localhost:5173",
-        "http://127.0.0.1:5173"
-    ])
+    CORS(app)
 
     from app.config import Config
     app.config.from_object(Config)
