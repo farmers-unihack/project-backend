@@ -10,8 +10,8 @@ class Group:
         self.id = data["_id"]
         self.name = data["name"]
         self.users = data["users"]
-        self.user_details = data["user_details"]
-        self.collectibles = data["collectibles"]
+        self.user_details = data.get("user_details", [])
+        self.collectibles = data.get("collectibles", [])
         self.invite_code = data["invite_code"]
 
     def get_member_count(self):

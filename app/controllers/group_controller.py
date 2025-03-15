@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from app.models.task_model import Task
 from app.services.group_service import GroupService
 from app.utils.request_checker import safe_json, safe_json_or_default
+from app.static.collectibles import ALL_COLLECTIBLES
 import traceback
 
 
@@ -93,14 +94,22 @@ def create_group_bp(
     def poll(logged_in_user: User):
         try:
             group = group_service.find_group_by_user_id(logged_in_user.id)
-            clocked_in_users: list[str] = []
+            clocked_in_users: list[dict] = []
             total_time = timedelta() 
+            group_collectibles = []
+            
+
+            for collectible_id in group.collectibles:
+                group_collectibles.append(ALL_COLLECTIBLES[collectible_id])
 
             for user_data in group.user_details:
                 user = User(user_data)
 
                 if user.is_clocked_in():
-                    clocked_in_users.append(user.username)
+                    clocked_in_users.append({
+                        "username": user.username,
+                        "clocked_in_at": user.clock_in_timestamp
+                    })
 
                 for session in user.sessions:
                     from_time: datetime = session['from_time']
@@ -108,7 +117,11 @@ def create_group_bp(
                     diff: timedelta = to_time - from_time
                     total_time += diff
 
-            return jsonify({ "active_users": clocked_in_users, "total_time_seconds": total_time.total_seconds() })
+            return jsonify({ 
+                            "active_users": clocked_in_users, 
+                            "total_time_seconds": total_time.total_seconds(),
+                            "collectibles": group_collectibles
+                            })
         except ValueError as ve:
             abort(400, str(ve))
         except Exception:
