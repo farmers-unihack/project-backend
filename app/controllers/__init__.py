@@ -2,6 +2,7 @@ from flask_bcrypt import Bcrypt
 from pymongo.database import Database
 
 from app.controllers.auth_controller import create_auth_bp
+from app.controllers.group_controller import create_group_bp
 from app.repositories.group_repository import GroupRepository
 from app.repositories.task_repository import TaskRepository
 from app.repositories.user_repository import UserRepository
@@ -22,5 +23,6 @@ def register_controllers(db: Database, bcrypt: Bcrypt):
 
     # Controllers
     auth_bp = create_auth_bp(auth_service)
+    group_bp = create_group_bp(group_service)
 
 
