@@ -81,12 +81,14 @@ class GroupService:
             if update_result.deleted_count == 0:
                 raise ValueError("Group could not be deleted")
         else:
-            update_result = self.group_repository.remove_user_from_group(group.id, user_id)
+            update_result = self.group_repository.remove_user_from_group(
+                group.id, user_id
+            )
             if update_result.modified_count == 0:
                 raise ValueError("User cannot be removed from group")
 
-    def get_group_tasks(self, group_id: str) -> list[Task]:
-        group = self.find_group_by_id(group_id)
+    def get_group_tasks(self, current_usere_id: str) -> list[Task]:
+        group = self.find_group_by_user_id(current_usere_id)
         if not group:
             raise ValueError("Group does not exist")
         tasks = itertools.chain.from_iterable(
@@ -97,8 +99,8 @@ class GroupService:
         )
         return tasks
 
-    def add_random_collectible_to_group(self, group_id: str):
-        group = self.find_group_by_id(group_id)
+    def add_random_collectible_to_group(self, current_user_id: str):
+        group = self.find_group_by_user_id(current_user_id)
         if not group:
             raise ValueError("Group does not exist")
         collectible = self.collectible_repository.find_random_collectible_excluding(

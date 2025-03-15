@@ -62,11 +62,11 @@ def create_group_bp(group_service: GroupService, auth_service: AuthService) -> B
             abort(500, "Internal Server Error")
 
     @group_bp.route("recent_completed_tasks", methods=["GET"])
-    def recent_completed_tasks():
+    @auth_service.protect_with_jwt
+    def recent_completed_tasks(logged_in_user: User):
         try:
-            group_id = safe_json("group_id")
             time_limit = timedelta(**safe_json("time_limit"))
-            group_tasks: list[Task] = group_service.get_group_tasks(group_id)
+            group_tasks: list[Task] = group_service.get_group_tasks(logged_in_user.id)
             filtered_tasks = filter(
                 lambda task: task.is_completed_within_recent_time(time_limit),
                 group_tasks,
