@@ -18,7 +18,10 @@ class GroupService:
             raise ValueError("Group could not be created")
         return created_group
 
-    def find_group_by_id(self, group_id: str) -> Group:
+    def find_group_by_id(self, group_id: Optional[str]) -> Group:
+        if not group_id:
+            raise ValueError("GroupId was not provided")
+
         group = self.group_repository.find_group_by_id(group_id)
         if group is None:
             raise ValueError("Group does not exist")
@@ -37,9 +40,11 @@ class GroupService:
             raise ValueError("User already in group")
 
         update_result = self.group_repository.add_user_to_group(group_id, user_id)
+
         if update_result.modified_count == 0:
             raise ValueError("User cannot be added to group")
-        return self.group_repository.find_group_by_id(group_id)
+
+        return group
 
     def remove_user_from_group(self, group_id: str, user_id: str) -> Group | None:
         group = self.find_group_by_id(group_id)
@@ -58,6 +63,8 @@ class GroupService:
             return None
 
         update_result = self.group_repository.remove_user_from_group(group_id, user_id)
+
         if update_result.modified_count == 0:
             raise ValueError("User cannot be removed from group")
-        return self.group_repository.find_group_by_id(group_id)
+
+        return group
