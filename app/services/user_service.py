@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from app.models.user_model import User
 from app.repositories.user_repository import UserRepository
 from app.utils.time import get_current_time
@@ -42,7 +42,7 @@ class UserService:
         if not user.is_clocked_in():
             raise ValueError("User is not clocked in")
 
-        from_time = user.clock_in_timestamp
+        from_time = user.clock_in_timestamp - timedelta(hours=5)
         to_time = get_current_time()
 
         update = {
