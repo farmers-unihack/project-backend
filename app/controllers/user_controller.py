@@ -47,7 +47,7 @@ def create_user_bp(
                 >= (len(group.collectibles) + 1) * PER_COLLECTIBLE_TIME_INCREMENT
             ):
                 group_service.add_random_collectible_to_group(logged_in_user.id)
-                return jsonify({"msg": "clocked out", "earned collectible": True}), 200
+                return jsonify({"msg": "clocked out", "earned_collectible": True}), 200
             return jsonify({"msg": "clocked out"}), 200
         except ValueError as e:
             return jsonify({"msg": str(e)}), 400
