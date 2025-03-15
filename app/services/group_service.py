@@ -1,5 +1,5 @@
 import itertools
-from typing import Optional
+from typing import Iterable, Optional
 from app.models.group_model import Group
 from app.models.task_model import Task
 from app.repositories.group_repository import GroupRepository
@@ -47,6 +47,12 @@ class GroupService:
             raise ValueError("Group does not exist")
         return group
 
+    def add_user_by_invite(self, invite_code: str, user_id: str) -> Group:
+        group_id = self.group_repository.find_group_by_invite_code(invite_code)
+        if not group_id:
+            raise ValueError(f"Group with invite code {invite_code} does not exist")
+        return self.add_user_to_group(group_id, user_id)
+
     def add_user_to_group(self, group_id: str, user_id: str) -> Group:
         if self.is_user_in_group(user_id):
             raise ValueError("User is already in a group")
@@ -78,11 +84,13 @@ class GroupService:
             if update_result.deleted_count == 0:
                 raise ValueError("Group could not be deleted")
         else:
-            update_result = self.group_repository.remove_user_from_group(group.id, user_id)
+            update_result = self.group_repository.remove_user_from_group(
+                group.id, user_id
+            )
             if update_result.modified_count == 0:
                 raise ValueError("User cannot be removed from group")
 
-    def get_group_tasks(self, group_id: str) -> list[Task]:
+    def get_group_tasks(self, group_id: str) -> Iterable[Task]:
         group = self.find_group_by_id(group_id)
         if not group:
             raise ValueError("Group does not exist")
