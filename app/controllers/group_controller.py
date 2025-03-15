@@ -105,7 +105,7 @@ def create_group_bp(
             for user_data in group.user_details:
                 user = User(user_data)
 
-                if user.is_clocked_in():
+                if user.is_clocked_in() and user.id is not logged_in_user.id:
                     clocked_in_users.append({
                         "username": user.username,
                         "clocked_in_at": user.clock_in_timestamp
