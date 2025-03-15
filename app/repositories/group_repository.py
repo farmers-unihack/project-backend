@@ -15,63 +15,58 @@ class GroupRepository:
         group_data = {
             "name": name,
             "users": [ObjectId(user_id)],
+            "invite_code": Group.generate_unique_invite_code(user_id),
         }
+
+        # FIXME: Conflict resolution?
 
         result = self.db.groups.insert_one(group_data)
 
         if not result.inserted_id:
-            return False 
+            return False
 
         return True
 
+    def find_group_by_invite_code(self, invite_code: str) -> Optional[str]:
+        group_data = self.db.groups.find_one({"invite_code": invite_code})
+        return group_data["_id"] if group_data else None
+
     def find_group_by_id(self, group_id: str) -> Optional[Group]:
-        group_data = self.db.groups.aggregate([
-            {
-                "$match": {"_id": ObjectId(group_id)}
-            },
-            {
-                "$lookup": {
-                    "from": "users",
-                    "localField": "users",
-                    "foreignField": "_id",
-                    "as": "user_details"
-                }
-            },
-            {
-                "$project": {
-                    "user_details.hashed_password": 0
-                }
-            },
-            {
-                "$limit": 1
-            }
-        ])
+        group_data = self.db.groups.aggregate(
+            [
+                {"$match": {"_id": ObjectId(group_id)}},
+                {
+                    "$lookup": {
+                        "from": "users",
+                        "localField": "users",
+                        "foreignField": "_id",
+                        "as": "user_details",
+                    }
+                },
+                {"$project": {"user_details.hashed_password": 0}},
+                {"$limit": 1},
+            ]
+        )
         group_data = next(group_data, None)
 
         return Group(group_data) if group_data else None
 
     def find_group_by_user_id(self, user_id: str) -> Optional[Group]:
-        group_data = self.db.groups.aggregate([
-            {
-                "$match": {"users": {"$in": [ObjectId(user_id)]}}
-            },
-            {
-                "$lookup": {
-                    "from": "users",
-                    "localField": "users",
-                    "foreignField": "_id",
-                    "as": "user_details"
-                }
-            },
-            {
-                "$project": {
-                    "user_details.hashed_password": 0
-                }
-            },
-            {
-                "$limit": 1
-            }
-        ])
+        group_data = self.db.groups.aggregate(
+            [
+                {"$match": {"users": {"$in": [ObjectId(user_id)]}}},
+                {
+                    "$lookup": {
+                        "from": "users",
+                        "localField": "users",
+                        "foreignField": "_id",
+                        "as": "user_details",
+                    }
+                },
+                {"$project": {"user_details.hashed_password": 0}},
+                {"$limit": 1},
+            ]
+        )
         group_data = next(group_data, None)
         return Group(group_data) if group_data else None
 
