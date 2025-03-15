@@ -109,7 +109,7 @@ class GroupService:
         if not collectible:
             raise ValueError("You have collected all the collectibles")
         update_result = self.group_repository.add_collectible_to_group(
-            group_id, collectible.id
+            group.id, collectible.id
         )
         if update_result.modified_count == 0:
             raise ValueError("Collectible cannot be added to group")
