@@ -77,7 +77,9 @@ def create_group_bp(
     def recent_completed_tasks(logged_in_user: User):
         try:
             time_limit = timedelta(**safe_json("time_limit"))
-            group_tasks: Iterable[Task] = group_service.get_group_tasks(logged_in_user.id)
+            group_tasks: Iterable[Task] = group_service.get_group_tasks(
+                logged_in_user.id
+            )
             filtered_tasks = filter(
                 lambda task: task.is_completed_within_recent_time(time_limit),
                 group_tasks,
@@ -95,11 +97,7 @@ def create_group_bp(
         try:
             group = group_service.find_group_by_user_id(logged_in_user.id)
             clocked_in_users: list[dict] = []
-            total_time = timedelta() 
-            group_collectibles = []
-
-            for collectible_id in group.collectibles:
-                group_collectibles.append(ALL_COLLECTIBLES[collectible_id])
+            total_time = timedelta()
 
             for user_data in group.user_details:
                 user = User(user_data)
@@ -111,16 +109,20 @@ def create_group_bp(
                     })
 
                 for session in user.sessions:
-                    from_time: datetime = session['from_time']
-                    to_time: datetime = session['to_time']
+                    from_time: datetime = session["from_time"]
+                    to_time: datetime = session["to_time"]
                     diff: timedelta = to_time - from_time
                     total_time += diff
 
-            return jsonify({ 
-                            "active_users": clocked_in_users, 
-                            "total_time_seconds": total_time.total_seconds(),
-                            "collectibles": group_collectibles
-                            })
+            return jsonify(
+                {
+                    "active_users": clocked_in_users,
+                    "total_time_seconds": total_time.total_seconds(),
+                    "collectibles": {
+                        "id": collectible for collectible in group.collectibles
+                    },
+                }
+            )
         except ValueError as ve:
             abort(400, str(ve))
         except Exception:

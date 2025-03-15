@@ -5,8 +5,10 @@ from app.services.group_service import GroupService
 from app.services.user_service import UserService
 from app.services.auth_service import AuthService
 from app.services.group_service import GroupService
+from app.utils.request_checker import safe_json_or_default
 from app.utils.time import get_current_time
 from app.static.collectibles import PER_COLLECTIBLE_TIME_INCREMENT, ALL_COLLECTIBLES
+
 
 def create_user_bp(
     user_service: UserService, auth_service: AuthService, group_service: GroupService
@@ -31,15 +33,18 @@ def create_user_bp(
     def clock_out(logged_in_user: User):
         try:
             # Todo store session now
-            user_service.clock_out_for_user(logged_in_user.id)
+            keystroke_cnt = safe_json_or_default("keystroke_cnt", None)
+            mouse_click_cnt = safe_json_or_default("mouse_click_cnt", None)
+            user_service.clock_out_for_user(
+                logged_in_user.id, keystroke_cnt, mouse_click_cnt
+            )
             group = group_service.find_group_by_user_id(logged_in_user.id)
             total_hours = sum(
                 [User(user).get_total_session_time() for user in group.user_details]
             )
             if (
                 total_hours
-                >= (len(group.collectibles) + 1)
-                * PER_COLLECTIBLE_TIME_INCREMENT
+                >= (len(group.collectibles) + 1) * PER_COLLECTIBLE_TIME_INCREMENT
             ):
                 group_service.add_random_collectible_to_group(logged_in_user.id)
                 return jsonify({"msg": "clocked out", "earned_collectible": True}), 200
@@ -50,12 +55,12 @@ def create_user_bp(
             traceback.print_exc()
             return jsonify({"msg": "Internal Server Error"}), 500
 
-    @user_bp.route("/me", methods=['GET'])
+    @user_bp.route("/me", methods=["GET"])
     @auth_service.protect_with_jwt
     def me(logged_in_user: User):
         data = {
-                "username": logged_in_user.username,
-                "in_group": False, 
+            "username": logged_in_user.username,
+            "in_group": False,
         }
 
         try:
