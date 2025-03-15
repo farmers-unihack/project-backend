@@ -1,18 +1,16 @@
-from flask import Blueprint, abort, jsonify, request
+from flask import Blueprint, abort, jsonify
 from app.services.task_service import TaskService
-from app.utils.request_checker import request_json_contains
+from app.utils.request_checker import safe_json, safe_json_or_default
 
 
 def create_tasks_bp(task_service: TaskService) -> Blueprint:
     tasks_bp = Blueprint("tasks", __name__)
 
-    @task_bp.route("/create", methods=["POST"])
+    @tasks_bp.route("/create", methods=["POST"])
     def create_task():
         try:
-            if not request_json_contains(["task_name"]):
-                abort(400, "Invalid request body")
-            task_name = request.json["task_name"]
-            task_description = request.json.get("task_description", "")
+            task_name = safe_json("task_name")
+            task_description = safe_json_or_default("task_description", "")
             task_service.create_task(task_name, task_description)
             return jsonify({"msg": "Task created successfully"}), 201
         except ValueError as ve:
@@ -20,15 +18,13 @@ def create_tasks_bp(task_service: TaskService) -> Blueprint:
         except Exception:
             abort(500, "Internal Server Error")
 
-    @task_bp.route("/update", methods=["PUT"])
+    @tasks_bp.route("/update", methods=["PUT"])
     def update_task():
         try:
-            if not request_json_contains(["task_id"]):
-                abort(400, "Invalid request body")
-            task_id = request.json["task_id"]
-            task_name = request.json.get("task_name", None)
-            task_description = request.json.get("task_description", None)
-            task_completed = request.json.get("task_completed", None)
+            task_id = safe_json("task_id")
+            task_name = safe_json_or_default("task_name", None)
+            task_description = safe_json_or_default("task_description", None)
+            task_completed = safe_json_or_default("task_completed", None)
             task_service.update_task(
                 task_id, task_name, task_description, task_completed
             )
@@ -38,12 +34,10 @@ def create_tasks_bp(task_service: TaskService) -> Blueprint:
         except Exception:
             abort(500, "Internal Server Error")
 
-    @task_bp.route("/delete", methods=["DELETE"])
+    @tasks_bp.route("/delete", methods=["DELETE"])
     def delete_task():
         try:
-            if not request_json_contains(["task_id"]):
-                abort(400, "Invalid request body")
-            task_id = request.json["task_id"]
+            task_id = safe_json("task_id")
             task_service.delete_task(task_id)
             return jsonify({"msg": "Task deleted successfully"}), 200
         except ValueError as ve:
