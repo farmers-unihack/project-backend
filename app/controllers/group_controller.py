@@ -5,7 +5,7 @@ from app.services.auth_service import AuthService
 from datetime import timedelta
 from app.models.task_model import Task
 from app.services.group_service import GroupService
-from app.utils.request_checker import safe_json
+from app.utils.request_checker import safe_json, safe_json_or_default
 import traceback
 
 
@@ -31,12 +31,14 @@ def create_group_bp(
     @auth_service.protect_with_jwt
     def join(logged_in_user: User):
         try:
-            group_id = safe_json("group_id")
-            invite_code = safe_json("invite_code")
+            group_id = safe_json_or_default("group_id", None)
+            invite_code = safe_json_or_default("invite_code", None)
             if invite_code:
                 group_service.add_user_by_invite(invite_code, logged_in_user.id)
-            else:
+            elif group_id:
                 group_service.add_user_to_group(group_id, logged_in_user.id)
+            else:
+                raise ValueError("Either group_id or invite_code must be provided")
             return jsonify({"msg": "Joined group successfully"}), 200
         except ValueError as ve:
             abort(400, str(ve))
