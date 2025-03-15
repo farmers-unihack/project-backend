@@ -25,6 +25,7 @@ def register_controllers(app: Flask, db: Database, bcrypt: Bcrypt):
     group_service = GroupService(group_repository, user_repository, task_repository)
     auth_service = AuthService(app, user_repository, bcrypt)
     task_service = TaskService(task_repository, user_repository)
+    user_service = UserService(user_repository)
 
     # Controllers
     auth_bp = create_auth_bp(auth_service)
