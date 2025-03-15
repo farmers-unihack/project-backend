@@ -56,6 +56,18 @@ def create_group_bp(
             traceback.print_exc()
             abort(500, "Internal Server Error")
 
+    @group_bp.route("invite", methods=["GET"])
+    @auth_service.protect_with_jwt
+    def details(logged_in_user: User):
+        try:
+            group = group_service.find_group_by_user_id(logged_in_user.id)
+            return jsonify(group.invite_code), 200
+        except ValueError as ve:
+            abort(400, str(ve))
+        except Exception:
+            traceback.print_exc()
+            abort(500, "Internal Server Error")
+
     @group_bp.route("leave", methods=["POST"])
     @auth_service.protect_with_jwt
     def leave_group(logged_in_user: User):
