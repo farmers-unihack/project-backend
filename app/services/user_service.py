@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from typing import Optional
 from app.models.user_model import User
 from app.repositories.user_repository import UserRepository
 from app.utils.time import get_current_time
@@ -29,11 +30,15 @@ class UserService:
         if user.is_clocked_in():
             raise ValueError("User is already clocked in")
 
-        updated = self.user_repository.update_user_by_id(user_id, { "$set": {"clock_in_timestamp": timestamp} } )
+        updated = self.user_repository.update_user_by_id(
+            user_id, {"$set": {"clock_in_timestamp": timestamp}}
+        )
         if not updated:
             raise ValueError("The user was not found to update the field")
 
-    def clock_out_for_user(self, user_id: str) -> None:
+    def clock_out_for_user(
+        self, user_id: str, keystroke_cnt: Optional[int], mouse_click_cnt: Optional[int]
+    ) -> None:
         user = self.user_repository.find_by_id(user_id)
 
         if not user:
@@ -44,19 +49,16 @@ class UserService:
 
         from_time = user.clock_in_timestamp
         to_time = get_current_time()
-
-        update = {
-            "$unset": { "clock_in_timestamp": "" },
-            "$push": {
-                "sessions": {
-                    "from_time": from_time,
-                    "to_time": to_time
-                }
-            }
+        session = {
+            "from_time": from_time,
+            "to_time": to_time,
         }
+        if keystroke_cnt is not None:
+            session["keystroke_cnt"] = keystroke_cnt
+        if mouse_click_cnt is not None:
+            session["mouse_click_cnt"] = mouse_click_cnt
+        update = {"$unset": {"clock_in_timestamp": ""}, "$push": {"sessions": session}}
 
-        updated = self.user_repository.update_user_by_id(user_id, update)        
+        updated = self.user_repository.update_user_by_id(user_id, update)
         if not updated:
             raise ValueError("The user was not found to update the field")
-
-
