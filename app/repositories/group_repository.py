@@ -15,6 +15,7 @@ class GroupRepository:
         group_data = {
             "name": name,
             "users": [ObjectId(user_id)],
+            "collectibles": [],
         }
 
         result = self.db.groups.insert_one(group_data)
@@ -37,6 +38,11 @@ class GroupRepository:
     def remove_user_from_group(self, group_id: str, user_id: str) -> UpdateResult:
         return self.db.groups.update_one(
             {"_id": ObjectId(group_id)}, {"$pull": {"users": ObjectId(user_id)}}
+        )
+    
+    def add_collectible_to_group(self, group_id: str, collectible_id: str) -> UpdateResult:
+        return self.db.groups.update_one(
+            {"_id": ObjectId(group_id)}, {"$push": {"collectibles": ObjectId(collectible_id)}}
         )
 
     def delete_group_by_id(self, group_id: str) -> DeleteResult:
