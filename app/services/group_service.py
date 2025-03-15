@@ -1,5 +1,5 @@
 import itertools
-from typing import Optional
+from typing import Iterable, Optional
 from app.models.group_model import Group
 from app.models.task_model import Task
 from app.repositories.collectible_repository import CollectibleRepository
@@ -87,7 +87,7 @@ class GroupService:
             if update_result.modified_count == 0:
                 raise ValueError("User cannot be removed from group")
 
-    def get_group_tasks(self, current_usere_id: str) -> list[Task]:
+    def get_group_tasks(self, current_usere_id: str) -> Iterable[Task]:
         group = self.find_group_by_user_id(current_usere_id)
         if not group:
             raise ValueError("Group does not exist")
