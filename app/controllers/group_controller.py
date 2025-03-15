@@ -1,5 +1,7 @@
 from flask import Blueprint, abort, jsonify, request
 from app.services.group_service import GroupService
+from app.utils.request_checker import safe_json 
+import traceback
 
 
 def create_group_bp(group_service: GroupService) -> Blueprint:
@@ -8,57 +10,52 @@ def create_group_bp(group_service: GroupService) -> Blueprint:
     @group_bp.route("create", methods=["POST"])
     def create():
         try:
-            if request.json == None:
-                abort(400, "no body provided")
-            group_name = request.json["group_name"]
-            user_id = request.json["user_id"]
+            group_name = safe_json("group_name")
+            user_id = safe_json("user_id")
             group_service.create_group(group_name, user_id)
             return jsonify({"msg": "Group created successfully"}), 201
         except ValueError as ve:
             abort(400, str(ve))
-        except Exception as e:
-            print(e)
+        except Exception:
+            traceback.print_exc()
             abort(500, "Internal Server Error")
 
     @group_bp.route("join", methods=["POST"])
     def join():
         try:
-            if request.json == None:
-                abort(400, "no body provided")
-            user_id = request.json["user_id"]
-            group_id = request.json["group_id"]
+            user_id = safe_json("user_id")
+            group_id = safe_json("group_id")
             group_service.add_user_to_group(user_id, group_id)
             return jsonify({"msg": "Joined group successfully"}), 200
         except ValueError as ve:
             abort(400, str(ve))
-        except Exception as e:
+        except Exception:
+            traceback.print_exc()
             abort(500, "Internal Server Error")
 
     @group_bp.route("users", methods=["GET"])
     def users():
         try:
-            if request.json == None:
-                abort(400, "no body provided")
             group_id = request.args.get("group_id")
             group = group_service.find_group_by_id(group_id)
             return jsonify(group.users), 200
         except ValueError as ve:
             abort(400, str(ve))
-        except Exception as e:
+        except Exception:
+            traceback.print_exc()
             abort(500, "Internal Server Error")
 
     @group_bp.route("leave", methods=["POST"])
     def leave_group():
         try:
-            if request.json == None:
-                abort(400, "no body provided")
-            user_id = request.json["user_id"]
-            group_id = request.json["group_id"]
+            user_id = safe_json("user_id")
+            group_id = safe_json("group_id")
             group_service.remove_user_from_group(user_id, group_id)
             return jsonify({"msg": "Left group successfully"}), 200
         except ValueError as ve:
             abort(400, str(ve))
-        except Exception as e:
+        except Exception:
+            traceback.print_exc()
             abort(500, "Internal Server Error")
 
     @group_bp.route("completed_tasks", methods=["GET"])
@@ -73,6 +70,5 @@ def create_group_bp(group_service: GroupService) -> Blueprint:
         #     abort(400, str(ve))
         # except Exception as e:
         #     abort(500, "Internal Server Error")
-
 
     return group_bp
