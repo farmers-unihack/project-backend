@@ -11,39 +11,53 @@ class GroupService:
         self.group_repository = group_repository
         self.user_repository = user_repository
 
-    def create_group(self, group_name: str, user_id: str) -> Optional[Group]:
+    def create_group(self, group_name: str, user_id: str) -> Group:
         # TODO: check if the user is already in a group
-        return self.group_repository.create_group(group_name, user_id)
+        created_group = self.group_repository.create_group(group_name, user_id)
+        if not created_group:
+            raise ValueError("Group could not be created")
+        return created_group
 
-    def add_user_to_group(self, group_id: str, user_id: str) -> tuple[bool, str]:
+    def find_group_by_id(self, group_id: str) -> Group:
         group = self.group_repository.find_group_by_id(group_id)
+        if group is None:
+            raise ValueError("Group does not exist")
+        return group
 
-        if not group:
-            return (False, "Group does not exist")
+    def add_user_to_group(self, group_id: str, user_id: str) -> Group:
+        group = self.find_group_by_id(group_id)
 
         if not self.user_repository.find_by_id(user_id):
-            return (False, "User does not exist")
+            raise ValueError("User does not exist")
 
         if group.get_member_count() >= Group.MAX_USERS_IN_GROUP:
-            return (False, "Group is full")
+            raise ValueError("Group is full")
 
-        self.group_repository.add_user_to_group(group_id, user_id)
-        return (True, "User added to group")
+        if group.contains_user(user_id):
+            raise ValueError("User already in group")
 
-    def remove_user_from_group(self, group_id: str, user_id: str) -> tuple[bool, str]:
-        group = self.group_repository.find_group_by_id(group_id)
+        update_result = self.group_repository.add_user_to_group(group_id, user_id)
+        if update_result.modified_count == 0:
+            raise ValueError("User cannot be added to group")
+        return self.group_repository.find_group_by_id(group_id)
 
-        if not group:
-            return (False, "Group does not exist")
-
+    def remove_user_from_group(self, group_id: str, user_id: str) -> Group | None:
+        group = self.find_group_by_id(group_id)
+        
         if not self.user_repository.find_by_id(user_id):
-            return (False, "User does not exist")
+            raise ValueError("User does not exist")
 
-        if group.get_member_count() == 1 and group.contains_user(user_id):
-            self.group_repository.delete_group_by_id(group_id)
-            return (True, "Group deleted as last member left")
+        if not group.contains_user(user_id):
+            raise ValueError("User not in group")
 
-        delete_result = self.group_repository.remove_user_from_group(group_id, user_id)
-        if delete_result.modified_count == 0:
-            return (False, "User not in group")
-        return (True, "User remove from group")
+        # delete the group if the user is the only member
+        if group.get_member_count() == 1:
+            update_result = self.group_repository.delete_group_by_id(group_id)
+            if update_result.deleted_count == 0:
+                raise ValueError("Group could not be deleted")
+            return None
+
+        update_result = self.group_repository.remove_user_from_group(group_id, user_id)
+        if update_result.modified_count == 0:
+            raise ValueError("User cannot be removed from group")
+        return self.group_repository.find_group_by_id(group_id)

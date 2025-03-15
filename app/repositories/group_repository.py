@@ -14,7 +14,7 @@ class GroupRepository:
     def create_group(self, name: str, user_id: str) -> Optional[Group]:
         group_data = {
             "name": name,
-            "users": [user_id],
+            "users": [ObjectId(user_id)],
         }
 
         result = self.db.groups.insert_one(group_data)
@@ -31,12 +31,12 @@ class GroupRepository:
 
     def add_user_to_group(self, group_id: str, user_id: str) -> UpdateResult:
         return self.db.groups.update_one(
-            {"_id": ObjectId(group_id)}, {"$push": {"users": user_id}}
+            {"_id": ObjectId(group_id)}, {"$push": {"users": ObjectId(user_id)}}
         )
 
     def remove_user_from_group(self, group_id: str, user_id: str) -> UpdateResult:
         return self.db.groups.update_one(
-            {"_id": ObjectId(group_id)}, {"$pull": {"users": user_id}}
+            {"_id": ObjectId(group_id)}, {"$pull": {"users": ObjectId(user_id)}}
         )
 
     def delete_group_by_id(self, group_id: str) -> DeleteResult:
