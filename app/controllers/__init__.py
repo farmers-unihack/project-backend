@@ -6,7 +6,6 @@ from app.controllers.auth_controller import create_auth_bp
 from app.controllers.group_controller import create_group_bp
 from app.controllers.user_controller import create_user_bp
 from app.controllers.task_controller import create_task_bp
-from app.repositories.collectible_repository import CollectibleRepository
 from app.repositories.group_repository import GroupRepository
 from app.repositories.task_repository import TaskRepository
 from app.repositories.user_repository import UserRepository
@@ -21,12 +20,9 @@ def register_controllers(app: Flask, db: Database, bcrypt: Bcrypt):
     user_repository = UserRepository(db)
     group_repository = GroupRepository(db)
     task_repository = TaskRepository(db)
-    collectible_repository = CollectibleRepository(db)
 
     # Services
-    group_service = GroupService(
-        group_repository, user_repository, task_repository, collectible_repository
-    )
+    group_service = GroupService(group_repository, user_repository, task_repository)
     auth_service = AuthService(app, user_repository, bcrypt)
     task_service = TaskService(task_repository, user_repository)
     user_service = UserService(user_repository)

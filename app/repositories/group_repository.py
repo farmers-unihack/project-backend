@@ -21,58 +21,46 @@ class GroupRepository:
         result = self.db.groups.insert_one(group_data)
 
         if not result.inserted_id:
-            return False 
+            return False
 
         return True
 
     def find_group_by_id(self, group_id: str) -> Optional[Group]:
-        group_data = self.db.groups.aggregate([
-            {
-                "$match": {"_id": ObjectId(group_id)}
-            },
-            {
-                "$lookup": {
-                    "from": "users",
-                    "localField": "users",
-                    "foreignField": "_id",
-                    "as": "user_details"
-                }
-            },
-            {
-                "$project": {
-                    "user_details.hashed_password": 0
-                }
-            },
-            {
-                "$limit": 1
-            }
-        ])
+        group_data = self.db.groups.aggregate(
+            [
+                {"$match": {"_id": ObjectId(group_id)}},
+                {
+                    "$lookup": {
+                        "from": "users",
+                        "localField": "users",
+                        "foreignField": "_id",
+                        "as": "user_details",
+                    }
+                },
+                {"$project": {"user_details.hashed_password": 0}},
+                {"$limit": 1},
+            ]
+        )
         group_data = next(group_data, None)
 
         return Group(group_data) if group_data else None
 
     def find_group_by_user_id(self, user_id: str) -> Optional[Group]:
-        group_data = self.db.groups.aggregate([
-            {
-                "$match": {"users": {"$in": [ObjectId(user_id)]}}
-            },
-            {
-                "$lookup": {
-                    "from": "users",
-                    "localField": "users",
-                    "foreignField": "_id",
-                    "as": "user_details"
-                }
-            },
-            {
-                "$project": {
-                    "user_details.hashed_password": 0
-                }
-            },
-            {
-                "$limit": 1
-            }
-        ])
+        group_data = self.db.groups.aggregate(
+            [
+                {"$match": {"users": {"$in": [ObjectId(user_id)]}}},
+                {
+                    "$lookup": {
+                        "from": "users",
+                        "localField": "users",
+                        "foreignField": "_id",
+                        "as": "user_details",
+                    }
+                },
+                {"$project": {"user_details.hashed_password": 0}},
+                {"$limit": 1},
+            ]
+        )
         group_data = next(group_data, None)
         return Group(group_data) if group_data else None
 
@@ -85,10 +73,12 @@ class GroupRepository:
         return self.db.groups.update_one(
             {"_id": ObjectId(group_id)}, {"$pull": {"users": ObjectId(user_id)}}
         )
-    
-    def add_collectible_to_group(self, group_id: str, collectible_id: str) -> UpdateResult:
+
+    def add_collectible_to_group(
+        self, group_id: str, collectible_name: str
+    ) -> UpdateResult:
         return self.db.groups.update_one(
-            {"_id": ObjectId(group_id)}, {"$push": {"collectibles": ObjectId(collectible_id)}}
+            {"_id": ObjectId(group_id)}, {"$push": {"collectibles": collectible_name}}
         )
 
     def delete_group_by_id(self, group_id: str) -> DeleteResult:

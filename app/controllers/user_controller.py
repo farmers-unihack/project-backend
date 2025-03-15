@@ -1,11 +1,12 @@
 import traceback
 from flask import Blueprint, jsonify
-from app.models.collectible_model import Collectible
 from app.models.user_model import User
 from app.services.group_service import GroupService
 from app.services.user_service import UserService
 from app.services.auth_service import AuthService
 from app.utils.time import get_current_time
+from app.static.collectibles import PER_COLLECTIBLE_TIME_INCREMENT, ALL_COLLECTIBLES
+
 
 
 def create_user_bp(
@@ -38,7 +39,7 @@ def create_user_bp(
             if (
                 total_hours
                 >= (len(group.collectibles) + 1)
-                * Collectible.PER_COLLECTIBLE_TIME_INCREMENT
+                * PER_COLLECTIBLE_TIME_INCREMENT
             ):
                 group_service.add_random_collectible_to_group(logged_in_user.id)
                 return jsonify({"msg": "clocked out", "earned collectible": True}), 200

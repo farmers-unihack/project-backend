@@ -1,11 +1,12 @@
 import itertools
+import random
 from typing import Iterable, Optional
 from app.models.group_model import Group
 from app.models.task_model import Task
-from app.repositories.collectible_repository import CollectibleRepository
 from app.repositories.group_repository import GroupRepository
 from app.repositories.task_repository import TaskRepository
 from app.repositories.user_repository import UserRepository
+from app.static.collectibles import ALL_COLLECTIBLES
 
 
 class GroupService:
@@ -14,12 +15,10 @@ class GroupService:
         group_repository: GroupRepository,
         user_repository: UserRepository,
         task_repository: TaskRepository,
-        collectible_repository: CollectibleRepository,
     ) -> None:
         self.group_repository = group_repository
         self.user_repository = user_repository
         self.task_repository = task_repository
-        self.collectible_repository = collectible_repository
 
     def create_group(self, group_name: str, user_id: str) -> None:
         if self.is_user_in_group(user_id):
@@ -103,30 +102,21 @@ class GroupService:
         group = self.find_group_by_user_id(current_user_id)
         if not group:
             raise ValueError("Group does not exist")
-        collectible = self.collectible_repository.find_random_collectible_excluding(
-            group.collectibles
+        # find one that is not owned by the group
+        collectible_name = random.choice(
+            [
+                key
+                for key in ALL_COLLECTIBLES.keys()
+                if key not in set(group.collectibles)
+            ]
         )
-        if not collectible:
+        if len(group.collectibles) == len(ALL_COLLECTIBLES):
             # FIXME this should be a log
-            print("No collectibles to add")
+            print("No more collectibles to add")
             return
         update_result = self.group_repository.add_collectible_to_group(
-            group.id, collectible.id
+            group.id, collectible_name
         )
         if update_result.modified_count == 0:
             raise ValueError("Collectible cannot be added to group")
         return
-
-    def add_collectible_to_group(self, group_id: str, collectible_id: str):
-        group = self.find_group_by_id(group_id)
-        if not group:
-            raise ValueError("Group does not exist")
-
-        if not self.collectible_repository.find_by_id(collectible_id):
-            raise ValueError("Collectible does not exist")
-
-        update_result = self.group_repository.add_collectible_to_group(
-            group_id, collectible_id
-        )
-        if update_result.modified_count == 0:
-            raise ValueError("Collectible cannot be added to group")
