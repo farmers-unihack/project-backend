@@ -97,7 +97,6 @@ def create_group_bp(
             clocked_in_users: list[dict] = []
             total_time = timedelta() 
             group_collectibles = []
-            
 
             for collectible_id in group.collectibles:
                 group_collectibles.append(ALL_COLLECTIBLES[collectible_id])
@@ -105,7 +104,7 @@ def create_group_bp(
             for user_data in group.user_details:
                 user = User(user_data)
 
-                if user.is_clocked_in() and (user.id is not logged_in_user.id):
+                if user.is_clocked_in() and (str(user.id) != str(logged_in_user.id)):
                     clocked_in_users.append({
                         "username": user.username,
                         "clocked_in_at": user.clock_in_timestamp
