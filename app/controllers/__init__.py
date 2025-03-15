@@ -21,7 +21,7 @@ def register_controllers(app: Flask, db: Database, bcrypt: Bcrypt, login_manager
     # Services
     user_service = UserService(user_repository)
     group_service = GroupService(group_repository, user_repository)
-    auth_service = AuthService(user_repository, bcrypt)
+    auth_service = AuthService(app, user_repository, bcrypt)
 
     # Login manager user loading
     from app.models.user_model import User
