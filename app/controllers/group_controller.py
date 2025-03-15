@@ -1,4 +1,5 @@
 from typing import Iterable
+from typing import Iterable
 from flask import Blueprint, abort, jsonify
 from app.models.user_model import User
 from app.services.auth_service import AuthService
@@ -70,13 +71,12 @@ def create_group_bp(
             traceback.print_exc()
             abort(500, "Internal Server Error")
 
-    @group_bp.route("recent_completed_tasks", methods=["GET"])
+    @group_bp.route("recent-completed-tasks", methods=["GET"])
     @auth_service.protect_with_jwt
     def recent_completed_tasks(logged_in_user: User):
         try:
-            group_id = group_service.find_group_by_user_id(logged_in_user.id).id
             time_limit = timedelta(**safe_json("time_limit"))
-            group_tasks: Iterable[Task] = group_service.get_group_tasks(group_id)
+            group_tasks: Iterable[Task] = group_service.get_group_tasks(logged_in_user.id)
             filtered_tasks = filter(
                 lambda task: task.is_completed_within_recent_time(time_limit),
                 group_tasks,
@@ -93,7 +93,7 @@ def create_group_bp(
     def poll(logged_in_user: User):
         try:
             group = group_service.find_group_by_user_id(logged_in_user.id)
-            clocked_in_users: Iterable[str] = []
+            clocked_in_users: list[str] = []
             total_time = timedelta() 
 
             for user_data in group.user_details:

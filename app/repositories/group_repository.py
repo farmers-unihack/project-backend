@@ -15,6 +15,7 @@ class GroupRepository:
         group_data = {
             "name": name,
             "users": [ObjectId(user_id)],
+            "collectibles": [],
             "invite_code": Group.generate_unique_invite_code(user_id),
         }
 
@@ -78,6 +79,13 @@ class GroupRepository:
     def remove_user_from_group(self, group_id: str, user_id: str) -> UpdateResult:
         return self.db.groups.update_one(
             {"_id": ObjectId(group_id)}, {"$pull": {"users": ObjectId(user_id)}}
+        )
+
+    def add_collectible_to_group(
+        self, group_id: str, collectible_name: str
+    ) -> UpdateResult:
+        return self.db.groups.update_one(
+            {"_id": ObjectId(group_id)}, {"$push": {"collectibles": collectible_name}}
         )
 
     def delete_group_by_id(self, group_id: str) -> DeleteResult:
