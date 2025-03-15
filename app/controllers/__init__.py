@@ -24,7 +24,9 @@ def register_controllers(app: Flask, db: Database, bcrypt: Bcrypt):
     collectible_repository = CollectibleRepository(db)
 
     # Services
-    group_service = GroupService(group_repository, user_repository, task_repository, collectible_repository)
+    group_service = GroupService(
+        group_repository, user_repository, task_repository, collectible_repository
+    )
     auth_service = AuthService(app, user_repository, bcrypt)
     task_service = TaskService(task_repository, user_repository)
     user_service = UserService(user_repository)
@@ -32,7 +34,7 @@ def register_controllers(app: Flask, db: Database, bcrypt: Bcrypt):
     # Controllers
     auth_bp = create_auth_bp(auth_service)
     group_bp = create_group_bp(group_service, auth_service)
-    user_bp = create_user_bp(user_service, auth_service)
+    user_bp = create_user_bp(user_service, auth_service, group_service)
     task_bp = create_task_bp(task_service, auth_service)
 
     # Register blueprints

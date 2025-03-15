@@ -2,6 +2,8 @@ from typing import Any
 
 
 class Collectible:
+    PER_COLLECTIBLE_TIME_INCREMENT = 5
+
     def __init__(self, data: dict[str, Any]) -> None:
         self.id = data["_id"]
         self.name = data["name"]
