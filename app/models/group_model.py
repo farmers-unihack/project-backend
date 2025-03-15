@@ -8,6 +8,7 @@ class Group:
         self.id = data["_id"]
         self.name = data["name"]
         self.users = data["users"]
+        self.user_details = data["user_details"]
         self.collectibles = data["collectibles"]
 
     def get_member_count(self):

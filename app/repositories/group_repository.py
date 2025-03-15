@@ -11,7 +11,7 @@ class GroupRepository:
     def __init__(self, db: Database) -> None:
         self.db = db
 
-    def create_group(self, name: str, user_id: str) -> Optional[Group]:
+    def create_group(self, name: str, user_id: str) -> bool:
         group_data = {
             "name": name,
             "users": [ObjectId(user_id)],
@@ -21,13 +21,59 @@ class GroupRepository:
         result = self.db.groups.insert_one(group_data)
 
         if not result.inserted_id:
-            return None
+            return False 
 
-        group_data["_id"] = result.inserted_id
-        return Group(group_data)
+        return True
 
     def find_group_by_id(self, group_id: str) -> Optional[Group]:
-        group_data = self.db.groups.find_one({"_id": ObjectId(group_id)})
+        group_data = self.db.groups.aggregate([
+            {
+                "$match": {"_id": ObjectId(group_id)}
+            },
+            {
+                "$lookup": {
+                    "from": "users",
+                    "localField": "users",
+                    "foreignField": "_id",
+                    "as": "user_details"
+                }
+            },
+            {
+                "$project": {
+                    "user_details.hashed_password": 0
+                }
+            },
+            {
+                "$limit": 1
+            }
+        ])
+        group_data = next(group_data, None)
+
+        return Group(group_data) if group_data else None
+
+    def find_group_by_user_id(self, user_id: str) -> Optional[Group]:
+        group_data = self.db.groups.aggregate([
+            {
+                "$match": {"users": {"$in": [ObjectId(user_id)]}}
+            },
+            {
+                "$lookup": {
+                    "from": "users",
+                    "localField": "users",
+                    "foreignField": "_id",
+                    "as": "user_details"
+                }
+            },
+            {
+                "$project": {
+                    "user_details.hashed_password": 0
+                }
+            },
+            {
+                "$limit": 1
+            }
+        ])
+        group_data = next(group_data, None)
         return Group(group_data) if group_data else None
 
     def add_user_to_group(self, group_id: str, user_id: str) -> UpdateResult:
