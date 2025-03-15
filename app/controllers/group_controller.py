@@ -96,11 +96,6 @@ def create_group_bp(
             group = group_service.find_group_by_user_id(logged_in_user.id)
             clocked_in_users: list[dict] = []
             total_time = timedelta() 
-            group_collectibles = []
-            
-
-            for collectible_id in group.collectibles:
-                group_collectibles.append(ALL_COLLECTIBLES[collectible_id])
 
             for user_data in group.user_details:
                 user = User(user_data)
@@ -120,7 +115,7 @@ def create_group_bp(
             return jsonify({ 
                             "active_users": clocked_in_users, 
                             "total_time_seconds": total_time.total_seconds(),
-                            "collectibles": group_collectibles
+                            "collectibles": group.collectibles
                             })
         except ValueError as ve:
             abort(400, str(ve))
