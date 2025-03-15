@@ -35,7 +35,7 @@ def create_task_bp(task_service: TaskService, auth_service: AuthService) -> Blue
             traceback.print_exc()
             abort(500, "Internal Server Error")
 
-    @task_bp.route("/update", methods=["PUT"])
+    @task_bp.route("/update", methods=["POST"])
     @auth_service.protect_with_jwt
     def update_task(current_user: User):
         try:
