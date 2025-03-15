@@ -4,6 +4,7 @@ from bson import ObjectId
 
 from app.models.user_model import User
 
+
 class UserRepository:
     def __init__(self, db: Database) -> None:
         self.db = db

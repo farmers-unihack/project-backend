@@ -3,6 +3,7 @@ from flask_bcrypt import Bcrypt
 from app.models.user_model import User
 from app.repositories.user_repository import UserRepository
 
+
 class AuthService:
     def __init__(self, user_repository: UserRepository, bcrypt: Bcrypt) -> None:
         self.user_repository = user_repository
