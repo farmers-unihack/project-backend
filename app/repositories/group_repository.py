@@ -16,7 +16,10 @@ class GroupRepository:
             "name": name,
             "users": [ObjectId(user_id)],
             "collectibles": [],
+            "invite_code": Group.generate_unique_invite_code(user_id),
         }
+
+        # FIXME: Conflict resolution?
 
         result = self.db.groups.insert_one(group_data)
 
@@ -24,6 +27,10 @@ class GroupRepository:
             return False
 
         return True
+
+    def find_group_by_invite_code(self, invite_code: str) -> Optional[str]:
+        group_data = self.db.groups.find_one({"invite_code": invite_code})
+        return group_data["_id"] if group_data else None
 
     def find_group_by_id(self, group_id: str) -> Optional[Group]:
         group_data = self.db.groups.aggregate(

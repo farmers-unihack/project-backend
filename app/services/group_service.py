@@ -49,6 +49,12 @@ class GroupService:
             raise ValueError(f"Group with user {user_id} does not exist")
         return group
 
+    def add_user_by_invite(self, invite_code: str, user_id: str) -> Group:
+        group_id = self.group_repository.find_group_by_invite_code(invite_code)
+        if not group_id:
+            raise ValueError(f"Group with invite code {invite_code} does not exist")
+        return self.add_user_to_group(group_id, user_id)
+
     def add_user_to_group(self, group_id: str, user_id: str) -> Group:
         if self.is_user_in_group(user_id):
             raise ValueError("User is already in a group")
