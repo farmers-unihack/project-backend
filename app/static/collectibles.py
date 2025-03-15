@@ -1,8 +1,10 @@
 PER_COLLECTIBLE_TIME_INCREMENT = 5 * 3600  # 5 hours
 
 ALL_COLLECTIBLES = {
-    "Collectible A": {
-        "description": "This is test collectible A",
-        "image_url": "collectible_a.jpg",
-    },
+    "Item 1": {},
+    "Item 2": {},
+    "Item 3": {},
+    "Item 4": {},
+    "Item 5": {},
+    "Item 6": {},
 }
