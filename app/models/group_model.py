@@ -2,7 +2,7 @@ from typing import Any
 
 
 class Group:
-    MAX_USERS_IN_GROUP = 6
+    MAX_USERS_IN_GROUP = 4
 
     def __init__(self, data: Any) -> None:
         self.id = data["_id"]
