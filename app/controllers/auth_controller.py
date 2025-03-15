@@ -1,7 +1,9 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify 
 
 from app.exceptions.auth_exception import AuthException
 from app.services.auth_service import AuthService
+
+from app.utils.request_checker import safe_json
 
 import traceback
 
@@ -10,8 +12,8 @@ def create_auth_bp(auth_service: AuthService) -> Blueprint:
 
     @auth_bp.route('login', methods=['POST'])
     def login():
-        username = request.form["username"]
-        password = request.form["password"]
+        username = safe_json("username")
+        password = safe_json("password")
 
         try: 
             login = auth_service.login(username, password)
@@ -25,8 +27,8 @@ def create_auth_bp(auth_service: AuthService) -> Blueprint:
 
     @auth_bp.route('register', methods=['POST'])
     def register():
-        username = request.form["username"]
-        password = request.form["password"]
+        username = safe_json("username")
+        password = safe_json("password")
 
         try:
             auth_service.register(username, password)
