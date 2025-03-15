@@ -3,8 +3,8 @@ from app.services.task_service import TaskService
 from app.utils.request_checker import safe_json, safe_json_or_default
 
 
-def create_tasks_bp(task_service: TaskService) -> Blueprint:
-    tasks_bp = Blueprint("tasks", __name__)
+def create_task_bp(task_service: TaskService) -> Blueprint:
+    task_bp = Blueprint("task", __name__)
 
     @tasks_bp.route("/create", methods=["POST"])
     def create_task():
@@ -45,4 +45,4 @@ def create_tasks_bp(task_service: TaskService) -> Blueprint:
         except Exception:
             abort(500, "Internal Server Error")
 
-    return tasks_bp
+    return task_bp

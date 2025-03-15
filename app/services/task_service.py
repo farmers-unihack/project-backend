@@ -2,17 +2,27 @@ from datetime import timedelta
 from typing import Optional
 from app.models.task_model import Task
 from app.repositories.task_repository import TaskRepository
+from app.repositories.user_repository import UserRepository
 from app.utils.time import get_current_time
 
 
 class TaskService:
-    def __init__(self, task_repository: TaskRepository) -> None:
+    def __init__(
+        self, task_repository: TaskRepository, user_repository: UserRepository
+    ) -> None:
         self.task_repository = task_repository
+        self.user_repository = user_repository
 
-    def create_task(self, name: str, description: str = "") -> Task:
+    def create_task(self, user_id: str, name: str, description: str = "") -> Task:
+        user = self.user_repository.find_by_id(user_id)
+        if user is None:
+            raise ValueError("User does not exist")
         result = self.task_repository.create_task(name, description)
         if result is None:
             raise ValueError("Task could not be created")
+        self.user_repository.add_task_to_user(user_id, result.id)
+        if result is None:
+            raise ValueError("Task could not be added to user")
         return result
 
     def find_task_by_id(self, task_id: str) -> Task:
