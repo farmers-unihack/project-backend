@@ -1,15 +1,22 @@
+import itertools
 from typing import Optional
 from app.models.group_model import Group
+from app.models.task_model import Task
 from app.repositories.group_repository import GroupRepository
+from app.repositories.task_repository import TaskRepository
 from app.repositories.user_repository import UserRepository
 
 
 class GroupService:
     def __init__(
-        self, group_repository: GroupRepository, user_repository: UserRepository
+        self,
+        group_repository: GroupRepository,
+        user_repository: UserRepository,
+        task_repository: TaskRepository,
     ) -> None:
         self.group_repository = group_repository
         self.user_repository = user_repository
+        self.task_repository = task_repository
 
     def create_group(self, group_name: str, user_id: str) -> None:
         if self.is_user_in_group(user_id):
@@ -75,3 +82,14 @@ class GroupService:
             if update_result.modified_count == 0:
                 raise ValueError("User cannot be removed from group")
 
+    def get_group_tasks(self, group_id: str) -> list[Task]:
+        group = self.find_group_by_id(group_id)
+        if not group:
+            raise ValueError("Group does not exist")
+        tasks = itertools.chain.from_iterable(
+            map(
+                lambda user_id: self.task_repository.find_tasks_by_user_id(user_id),
+                group.users,
+            )
+        )
+        return tasks

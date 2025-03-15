@@ -10,11 +10,11 @@ class UserRepository:
         self.db = db
 
     def find_by_id(self, user_id: str) -> Optional[User]:
-        data = self.db.users.find_one({ "_id": ObjectId(user_id) })
+        data = self.db.users.find_one({"_id": ObjectId(user_id)})
         return User(data) if data else None
 
     def find_by_username(self, username: str) -> Optional[User]:
-        data = self.db.users.find_one({ "username": username })
+        data = self.db.users.find_one({"username": username})
         return User(data) if data else None
 
     def update_user_by_id(self, user_id: str, update_fields: dict) -> bool:
@@ -40,3 +40,8 @@ class UserRepository:
 
         return True
 
+        result = self.db.users.insert_one(user_data)
+        if result.inserted_id is None:
+            return None
+        user_data["_id"] = result.inserted_id
+        return User(user_data)
