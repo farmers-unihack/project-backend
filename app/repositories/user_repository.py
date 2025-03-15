@@ -17,9 +17,16 @@ class UserRepository:
         data = self.db.users.find_one({ "username": username })
         return User(data) if data else None
 
-    def create_user(self, username: str, hashed_password: str) -> Optional[User]:
+    def update_user_by_id(self, user_id: str, update_fields: dict) -> bool:
+        result = self.db.users.update_one(
+            {"_id": ObjectId(user_id)}, update_fields
+        )
+
+        return result.modified_count > 0
+
+    def create_user(self, username: str, hashed_password: str) -> bool:
         if self.find_by_username(username):
-            return None
+            return False 
 
         user = {
             "username": username,
@@ -27,5 +34,9 @@ class UserRepository:
         }
 
         result = self.db.users.insert_one(user)
-        return User({ "_id": result.inserted_id, "username": username, "hashed_password": hashed_password }) 
+
+        if result.inserted_id == None:
+            return False 
+
+        return True
 

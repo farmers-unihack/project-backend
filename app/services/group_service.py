@@ -11,12 +11,12 @@ class GroupService:
         self.group_repository = group_repository
         self.user_repository = user_repository
 
-    def create_group(self, group_name: str, user_id: str) -> Group:
-        # TODO: check if the user is already in a group
-        created_group = self.group_repository.create_group(group_name, user_id)
-        if not created_group:
+    def create_group(self, group_name: str, user_id: str) -> None:
+        if self.is_user_in_group(user_id):
+            raise ValueError("User is already in a group")
+
+        if not self.group_repository.create_group(group_name, user_id):
             raise ValueError("Group could not be created")
-        return created_group
 
     def find_group_by_id(self, group_id: Optional[str]) -> Group:
         if not group_id:
@@ -27,7 +27,23 @@ class GroupService:
             raise ValueError("Group does not exist")
         return group
 
+    def is_user_in_group(self, user_id: str) -> bool:
+        try:
+            self.find_group_by_user_id(user_id)
+            return True
+        except:
+            return False
+
+    def find_group_by_user_id(self, user_id: str) -> Group:
+        group = self.group_repository.find_group_by_user_id(user_id)
+        if group is None:
+            raise ValueError("Group does not exist")
+        return group
+
     def add_user_to_group(self, group_id: str, user_id: str) -> Group:
+        if self.is_user_in_group(user_id):
+            raise ValueError("User is already in a group")
+
         group = self.find_group_by_id(group_id)
 
         if not self.user_repository.find_by_id(user_id):
@@ -46,25 +62,16 @@ class GroupService:
 
         return group
 
-    def remove_user_from_group(self, group_id: str, user_id: str) -> Group | None:
-        group = self.find_group_by_id(group_id)
-        
-        if not self.user_repository.find_by_id(user_id):
-            raise ValueError("User does not exist")
-
-        if not group.contains_user(user_id):
-            raise ValueError("User not in group")
+    def remove_user_from_group(self, user_id: str) -> None:
+        group = self.find_group_by_user_id(user_id)
 
         # delete the group if the user is the only member
         if group.get_member_count() == 1:
-            update_result = self.group_repository.delete_group_by_id(group_id)
+            update_result = self.group_repository.delete_group_by_id(group.id)
             if update_result.deleted_count == 0:
                 raise ValueError("Group could not be deleted")
-            return None
+        else:
+            update_result = self.group_repository.remove_user_from_group(group.id, user_id)
+            if update_result.modified_count == 0:
+                raise ValueError("User cannot be removed from group")
 
-        update_result = self.group_repository.remove_user_from_group(group_id, user_id)
-
-        if update_result.modified_count == 0:
-            raise ValueError("User cannot be removed from group")
-
-        return group

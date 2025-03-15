@@ -27,7 +27,7 @@ class AuthService:
         token = jwt.encode({        
                             'user_id': str(user.id),
                             'username': user.username,
-                            'exp' : datetime.now(timezone.utc) + timedelta(minutes = 30)
+                            'exp' : datetime.now(timezone.utc) + timedelta(days = 7)
                             }, self.app.config["SECRET_KEY"])
 
         return user, token
@@ -36,7 +36,8 @@ class AuthService:
         if self.user_repository.find_by_username(username):
             raise AuthException(f"A user with the name {username} already exists") 
         hashed_password = self.bcrypt.generate_password_hash(password).decode("utf-8")
-        self.user_repository.create_user(username, hashed_password)
+        if self.user_repository.create_user(username, hashed_password):
+            raise AuthException(f"A failuer occured while creating a new user") 
 
     def validate_password(self, user: User, expected_pass: str) -> bool:
         return self.bcrypt.check_password_hash(user.hashed_password, expected_pass)

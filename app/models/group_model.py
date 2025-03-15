@@ -2,12 +2,13 @@ from typing import Any
 
 
 class Group:
-    MAX_USERS_IN_GROUP = 6
+    MAX_USERS_IN_GROUP = 4
 
     def __init__(self, data: Any) -> None:
         self.id = data["_id"]
         self.name = data["name"]
         self.users = data["users"]
+        self.user_details = data["user_details"]
 
     def get_member_count(self):
         return len(self.users)
