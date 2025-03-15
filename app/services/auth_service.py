@@ -36,7 +36,7 @@ class AuthService:
         if self.user_repository.find_by_username(username):
             raise AuthException(f"A user with the name {username} already exists") 
         hashed_password = self.bcrypt.generate_password_hash(password).decode("utf-8")
-        if self.user_repository.create_user(username, hashed_password):
+        if not self.user_repository.create_user(username, hashed_password):
             raise AuthException(f"A failuer occured while creating a new user") 
 
     def validate_password(self, user: User, expected_pass: str) -> bool:

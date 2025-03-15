@@ -32,4 +32,5 @@ def create_user_bp(user_service: UserService, auth_service: AuthService) -> Blue
         except:
             traceback.print_exc()
             return jsonify({ "msg": "Internal Server Error" }), 500
+
     return user_bp 
