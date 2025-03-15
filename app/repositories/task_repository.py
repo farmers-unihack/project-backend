@@ -2,7 +2,6 @@ from typing import Optional
 from bson import ObjectId
 from pymongo.database import Database
 from app.models.task_model import Task
-from app.utils.time import get_current_time
 from pymongo.results import UpdateResult, DeleteResult
 
 
