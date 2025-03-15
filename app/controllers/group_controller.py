@@ -5,9 +5,7 @@ from app.utils.request_checker import safe_json
 import traceback
 
 
-def create_group_bp(
-    group_service: GroupService, task_service: TaskService, user_service: UserService
-) -> Blueprint:
+def create_group_bp(group_service: GroupService) -> Blueprint:
     group_bp = Blueprint("group", __name__)
 
     @group_bp.route("create", methods=["POST"])
