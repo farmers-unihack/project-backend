@@ -107,7 +107,9 @@ class GroupService:
             group.collectibles
         )
         if not collectible:
-            raise ValueError("You have collected all the collectibles")
+            # FIXME this should be a log
+            print("No collectibles to add")
+            return
         update_result = self.group_repository.add_collectible_to_group(
             group.id, collectible.id
         )
