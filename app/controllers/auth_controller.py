@@ -12,29 +12,31 @@ def create_auth_bp(auth_service: AuthService) -> Blueprint:
 
     @auth_bp.route('login', methods=['POST'])
     def login():
-        username = safe_json("username")
-        password = safe_json("password")
-
         try: 
+            username = safe_json("username")
+            password = safe_json("password")
             login = auth_service.login(username, password)
             user, token = login
             return jsonify({"username": user.username, "token": token}), 201 
         except AuthException:
             return jsonify({ "msg": "Invalid credentails" }), 401 
+        except ValueError:
+            return jsonify({ "msg": "Invalid input" }), 400 
         except Exception:
             traceback.print_exc()
             return jsonify({ "msg": "Internal server error" }), 500 
 
     @auth_bp.route('register', methods=['POST'])
     def register():
-        username = safe_json("username")
-        password = safe_json("password")
-
         try:
+            username = safe_json("username")
+            password = safe_json("password")
             auth_service.register(username, password)
             return jsonify({ "msg": "Successfully registered the account" }), 200
         except AuthException:
             return jsonify({ "msg": "user with that username already exists" }), 401 
+        except ValueError:
+            return jsonify({ "msg": "Invalid input" }), 400 
         except Exception:
             traceback.print_exc()
             return jsonify({ "msg": "Internal server error" }), 500 
