@@ -40,9 +40,4 @@ def create_auth_bp(auth_service: AuthService) -> Blueprint:
         except Exception:
             traceback.print_exc()
             return jsonify({ "msg": "Internal server error" }), 500 
-
-    @auth_bp.route("/me", methods=['GET'])
-    @auth_service.protect_with_jwt
-    def me(current_user):
-        return jsonify(logged_in_as=current_user.username), 200
     return auth_bp
