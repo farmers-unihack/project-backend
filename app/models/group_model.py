@@ -5,16 +5,21 @@ from app.extensions import get_db
 from app.models.user_model import User
 from app.utils.time import get_current_time
 
+
 class Group:
     MAX_USERS_IN_GROUP = 6
 
     def __init__(self, data: Any) -> None:
         self.id = data["_id"]
         self.name = data["name"]
-        self.users = data["users"] 
+        self.users = data["users"]
 
     def get_member_count(self):
         return len(self.users)
+
+    def contains_user(self, user_id: str):
+        return user_id in self.users
+
 
 class GroupModel:
     MAX_USERS_IN_GROUP = 6
