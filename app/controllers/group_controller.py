@@ -98,12 +98,7 @@ def create_group_bp(
             group = group_service.find_group_by_user_id(logged_in_user.id)
             clocked_in_users: list[dict] = []
             total_time = timedelta()
-
-            collectibles = []
-            for collectible in group.collectibles:
-                collectibles.append({
-                    "id": collectible.id
-                })
+            collectibles = [ { "id": x } for x in group.collectibles]
 
 
             for user_data in group.user_details:
