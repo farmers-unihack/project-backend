@@ -99,6 +99,13 @@ def create_group_bp(
             clocked_in_users: list[dict] = []
             total_time = timedelta()
 
+            collectibles = []
+            for collectible in group.collectibles:
+                collectibles.append({
+                    "id": collectible.id
+                })
+
+
             for user_data in group.user_details:
                 user = User(user_data)
 
@@ -109,6 +116,9 @@ def create_group_bp(
                     })
 
                 for session in user.sessions:
+                    valid = session.get("valid", False)
+                    if not valid:
+                        continue
                     from_time: datetime = session["from_time"]
                     to_time: datetime = session["to_time"]
                     diff: timedelta = to_time - from_time
@@ -118,9 +128,7 @@ def create_group_bp(
                 {
                     "active_users": clocked_in_users,
                     "total_time_seconds": total_time.total_seconds(),
-                    "collectibles": {
-                        "id": collectible for collectible in group.collectibles
-                    },
+                    "collectibles": collectibles,
                 }
             )
         except ValueError as ve:

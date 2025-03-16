@@ -33,8 +33,9 @@ def create_user_bp(
     def clock_out(logged_in_user: User):
         try:
             # Todo store session now
-            keystroke_cnt = safe_json_or_default("keystroke_cnt", None)
-            mouse_click_cnt = safe_json_or_default("mouse_click_cnt", None)
+            keystroke_cnt = safe_json_or_default("wordCount", None)
+            mouse_click_cnt = safe_json_or_default("clickCount", None)
+            valid = bool(safe_json_or_default("valid", "False"))
             user_service.clock_out_for_user(
                 logged_in_user.id, keystroke_cnt, mouse_click_cnt
             )
