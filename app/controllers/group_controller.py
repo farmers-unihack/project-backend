@@ -123,7 +123,7 @@ def create_group_bp(
 
                 users.append({
                     "username": user.username,
-                    "focus_time": user_time
+                    "focus_time_seconds": user_time.total_seconds()
                 })
 
             return jsonify(
