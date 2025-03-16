@@ -37,7 +37,7 @@ class UserService:
             raise ValueError("The user was not found to update the field")
 
     def clock_out_for_user(
-        self, user_id: str, keystroke_cnt: Optional[int], mouse_click_cnt: Optional[int]
+            self, user_id: str, keystroke_cnt: Optional[int], mouse_click_cnt: Optional[int], valid: Optional[bool]
     ) -> None:
         user = self.user_repository.find_by_id(user_id)
 
@@ -57,6 +57,12 @@ class UserService:
             session["keystroke_cnt"] = keystroke_cnt
         if mouse_click_cnt is not None:
             session["mouse_click_cnt"] = mouse_click_cnt
+
+        if valid is not None:
+            session["valid"] = valid
+        else:
+            session["valid"] = False
+
         update = {"$unset": {"clock_in_timestamp": ""}, "$push": {"sessions": session}}
 
         updated = self.user_repository.update_user_by_id(user_id, update)

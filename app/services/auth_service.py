@@ -46,6 +46,7 @@ class AuthService:
         @wraps(f)
         def decorated(*args, **kwargs):
             token = None
+
             if 'x-access-token' in request.headers:
                 token = request.headers['x-access-token']
 
@@ -55,6 +56,10 @@ class AuthService:
             try:
                 data = jwt.decode(token, self.app.config['SECRET_KEY'], algorithms=["HS256"])
                 current_user = self.user_repository.find_by_id(data['user_id'])
+                if not current_user:
+                    return jsonify({
+                        'message' : 'Token is invalid !!'
+                    }), 401
             except:
                 traceback.print_exc()
                 return jsonify({
