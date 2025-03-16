@@ -39,9 +39,3 @@ class UserRepository:
             return False 
 
         return True
-
-        result = self.db.users.insert_one(user_data)
-        if result.inserted_id is None:
-            return None
-        user_data["_id"] = result.inserted_id
-        return User(user_data)

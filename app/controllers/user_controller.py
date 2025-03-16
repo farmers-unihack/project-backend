@@ -37,7 +37,7 @@ def create_user_bp(
             mouse_click_cnt = safe_json_or_default("clickCount", None)
             valid = bool(safe_json_or_default("valid", "False"))
             user_service.clock_out_for_user(
-                logged_in_user.id, keystroke_cnt, mouse_click_cnt
+                logged_in_user.id, keystroke_cnt, mouse_click_cnt, valid
             )
             group = group_service.find_group_by_user_id(logged_in_user.id)
             total_hours = sum(
