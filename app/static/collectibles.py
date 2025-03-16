@@ -1,4 +1,4 @@
-PER_COLLECTIBLE_TIME_INCREMENT = 10 * 60  # 10 mintues
+PER_COLLECTIBLE_TIME_INCREMENT = 1 * 60  # 1 mintue
 
 ALL_COLLECTIBLES: dict[str, dict] = {
     "Item 1": {"description": "A very nice item"},
