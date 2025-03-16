@@ -99,10 +99,11 @@ def create_group_bp(
             clocked_in_users: list[dict] = []
             total_time = timedelta()
             collectibles = [ { "id": x } for x in group.collectibles]
-
+            users: list[dict] = []
 
             for user_data in group.user_details:
                 user = User(user_data)
+                user_time = timedelta()
 
                 if user.is_clocked_in() and (str(user.id) != str(logged_in_user.id)):
                     clocked_in_users.append({
@@ -118,10 +119,17 @@ def create_group_bp(
                     to_time: datetime = session["to_time"]
                     diff: timedelta = to_time - from_time
                     total_time += diff
+                    user_time += diff
+
+                users.append({
+                    "username": user.username,
+                    "focus_time": user_time
+                })
 
             return jsonify(
                 {
                     "active_users": clocked_in_users,
+                    "users": users,
                     "total_time_seconds": total_time.total_seconds(),
                     "collectibles": collectibles,
                 }
